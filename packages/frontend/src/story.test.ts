@@ -2,10 +2,13 @@ import { Command, given, message, model, story } from 'foldkit/story'
 import { modifyFields } from 'foldkit/struct'
 import { describe, expect, test } from 'vitest'
 
+import { ChatMessage } from '@cafe/api/chat/message'
+
 import {
   ConnectionState,
   Message,
   Model,
+  Response,
   SendPrompt,
   SendState,
   update,
@@ -15,6 +18,7 @@ const idleModel = Model.make({
   chatKeyInput: 'lobby',
   connection: ConnectionState.Disconnected(),
   messages: [],
+  responses: [],
   promptInput: '',
   send: SendState.Idle(),
 })
@@ -27,12 +31,13 @@ const connectedModel = modifyFields(idleModel, {
   connection: () => ConnectionState.Connected({ chatKey: 'lobby' }),
 })
 
-const chatMessage = {
+const chatMessage = ChatMessage.make({
   id: '1',
   key: 'lobby',
+  role: 'user',
   text: 'hi',
   sentAt: 0,
-}
+})
 
 describe('update', () => {
   describe('joining a chat', () => {
@@ -63,10 +68,16 @@ describe('update', () => {
     test('SubmittedChatKey clears messages from a previous chat', () => {
       story(
         update,
-        given(modifyFields(idleModel, { messages: () => [chatMessage] })),
+        given(
+          modifyFields(idleModel, {
+            messages: () => [chatMessage],
+            responses: () => [Response.Streaming({ id: 'r', text: 'partial' })],
+          }),
+        ),
         message(Message.SubmittedChatKey()),
         model(model => {
           expect(model.messages).toEqual([])
+          expect(model.responses).toEqual([])
         }),
       )
     })
@@ -195,7 +206,7 @@ describe('update', () => {
 
   describe('receiving events', () => {
     test('ReceivedChatEvent appends posted messages in order', () => {
-      const second = { ...chatMessage, id: '2', text: 'there' }
+      const second = ChatMessage.make({ ...chatMessage, id: '2', text: 'there' })
 
       story(
         update,
@@ -212,6 +223,81 @@ describe('update', () => {
         ),
         model(model => {
           expect(model.messages).toEqual([chatMessage, second])
+        }),
+      )
+    })
+
+    test('ResponseDelta accumulates a streaming response', () => {
+      story(
+        update,
+        given(connectedModel),
+        message(
+          Message.ReceivedChatEvent({
+            event: { _tag: 'ResponseDelta', responseId: 'r', text: 'Hel' },
+          }),
+        ),
+        message(
+          Message.ReceivedChatEvent({
+            event: { _tag: 'ResponseDelta', responseId: 'r', text: 'lo' },
+          }),
+        ),
+        model(model => {
+          expect(model.responses).toEqual([
+            Response.Streaming({ id: 'r', text: 'Hello' }),
+          ])
+        }),
+      )
+    })
+
+    test('the posted assistant message replaces its streaming response', () => {
+      const reply = ChatMessage.make({
+        id: 'r',
+        key: 'lobby',
+        role: 'assistant',
+        text: 'Hello',
+        sentAt: 1,
+      })
+
+      story(
+        update,
+        given(
+          modifyFields(connectedModel, {
+            responses: () => [Response.Streaming({ id: 'r', text: 'Hel' })],
+          }),
+        ),
+        message(
+          Message.ReceivedChatEvent({
+            event: { _tag: 'MessagePosted', message: reply },
+          }),
+        ),
+        model(model => {
+          expect(model.messages).toEqual([reply])
+          expect(model.responses).toEqual([])
+        }),
+      )
+    })
+
+    test('ResponseFailed marks the response as failed', () => {
+      story(
+        update,
+        given(
+          modifyFields(connectedModel, {
+            responses: () => [Response.Streaming({ id: 'r', text: 'Hel' })],
+          }),
+        ),
+        message(
+          Message.ReceivedChatEvent({
+            event: {
+              _tag: 'ResponseFailed',
+              responseId: 'r',
+              error: 'model unavailable',
+            },
+          }),
+        ),
+        model(model => {
+          expect(model.responses).toEqual([
+            Response.Failed({ id: 'r', error: 'model unavailable' }),
+          ])
         }),
       )
     })

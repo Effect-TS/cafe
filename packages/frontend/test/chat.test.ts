@@ -108,9 +108,18 @@ const waitForMessage = (page: Page, text: string) =>
     page.getByRole('listitem').filter({ hasText: text }).waitFor(),
   )
 
-const messageTexts = (page: Page) =>
+/** Waits for the next completed (no longer streaming) assistant reply. */
+const waitForReply = (page: Page, count: number) =>
   Effect.promise(() =>
-    page.getByRole('listitem').locator('div').allInnerTexts(),
+    page
+      .locator('li[data-role="assistant"]:not(:has([aria-busy="true"]))')
+      .nth(count - 1)
+      .waitFor({ timeout: 30_000 }),
+  )
+
+const messageTexts = (page: Page, role: 'user' | 'assistant') =>
+  Effect.promise(() =>
+    page.locator(`li[data-role="${role}"] > div`).allInnerTexts(),
   )
 
 test(
@@ -131,6 +140,22 @@ test(
 )
 
 test(
+  'the assistant streams a reply to a prompt',
+  Effect.gen(function* () {
+    const page = yield* openSite
+
+    yield* joinChat(page, uniqueKey('reply'))
+    yield* sendPrompt(page, 'Say hello in five words.')
+    yield* waitForReply(page, 1)
+
+    const [reply] = yield* messageTexts(page, 'assistant')
+    expect(reply?.trim().length).toBeGreaterThan(0)
+    expect(reply).not.toContain('▍')
+  }).pipe(Effect.scoped),
+  { timeout: 60_000 },
+)
+
+test(
   'a message from one user appears for another in the same chat',
   Effect.gen(function* () {
     const alice = yield* openSite
@@ -142,6 +167,7 @@ test(
 
     yield* sendPrompt(alice, 'hi bob')
     yield* waitForMessage(bob, 'hi bob')
+    yield* waitForReply(bob, 1)
   }).pipe(Effect.scoped),
   { timeout: 60_000 },
 )
@@ -164,9 +190,10 @@ test(
 
     const page = yield* openSite
     yield* joinChat(page, chatKey)
-    yield* waitForMessage(page, 'second')
+    yield* waitForReply(page, 2)
 
-    expect(yield* messageTexts(page)).toEqual(['first', 'second'])
+    expect(yield* messageTexts(page, 'user')).toEqual(['first', 'second'])
+    expect(yield* messageTexts(page, 'assistant')).toHaveLength(2)
   }).pipe(Effect.scoped),
   { timeout: 60_000 },
 )

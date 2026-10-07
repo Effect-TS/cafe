@@ -47,5 +47,5 @@ export default Cloudflare.Worker(
         return yield* api;
       }),
     };
-  }),
+  }).pipe(Effect.provide(Cloudflare.Workers.AIBinding)),
 );

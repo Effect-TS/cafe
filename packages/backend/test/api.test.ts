@@ -116,6 +116,7 @@ test(
     });
 
     expect(message.key).toBe(key);
+    expect(message.role).toBe("user");
     expect(message.text).toBe("hello");
   }),
 );
@@ -170,7 +171,7 @@ test(
     Effect.scoped,
     Effect.provide(Socket.layerWebSocketConstructorGlobal),
   ),
-  { timeout: 30_000 },
+  { timeout: 60_000 },
 );
 
 test(
@@ -190,12 +191,60 @@ test(
     });
 
     const late = yield* subscribe(url, key);
+    const posted = (event: ChatEvent) =>
+      event._tag === "MessagePosted" ? event.message : undefined;
 
-    expect(yield* late.next).toEqual({ _tag: "MessagePosted", message: first });
-    expect(yield* late.next).toEqual({ _tag: "MessagePosted", message: second });
+    // Each prompt is followed by its assistant reply; deltas are not replayed.
+    expect(posted(yield* late.next)).toEqual(first);
+    expect(posted(yield* late.next)?.role).toBe("assistant");
+    expect(posted(yield* late.next)).toEqual(second);
+    expect(posted(yield* late.next)?.role).toBe("assistant");
   }).pipe(
     Effect.scoped,
     Effect.provide(Socket.layerWebSocketConstructorGlobal),
   ),
-  { timeout: 30_000 },
+  { timeout: 120_000 },
+);
+
+test(
+  "a prompt streams an assistant response",
+  Effect.gen(function* () {
+    const { url } = yield* stack;
+    const client = yield* HttpApiClient.make(Api, { baseUrl: url });
+    const key = uniqueKey("stream");
+
+    const subscriber = yield* subscribe(url, key);
+    const sent = yield* client.Chat.sendPrompt({
+      params: { key },
+      payload: { text: "Say hello in five words." },
+    });
+
+    expect(yield* subscriber.next).toEqual({
+      _tag: "MessagePosted",
+      message: sent,
+    });
+
+    // ResponseDelta* then the assistant's MessagePosted, all with one id.
+    const deltas: Array<string> = [];
+    let event = yield* subscriber.next;
+    while (event._tag === "ResponseDelta") {
+      deltas.push(event.text);
+      event = yield* subscriber.next;
+    }
+
+    expect(event._tag).toBe("MessagePosted");
+    if (event._tag !== "MessagePosted") return;
+    expect(event.message.role).toBe("assistant");
+    expect(deltas.length).toBeGreaterThan(1);
+    expect(deltas.join("")).toBe(event.message.text);
+    // Regression: each chunk used to be emitted twice in a row.
+    const pairsRepeat = deltas.every(
+      (delta, i) => i % 2 === 0 || delta === deltas[i - 1],
+    );
+    expect(pairsRepeat).toBe(false);
+  }).pipe(
+    Effect.scoped,
+    Effect.provide(Socket.layerWebSocketConstructorGlobal),
+  ),
+  { timeout: 60_000 },
 );

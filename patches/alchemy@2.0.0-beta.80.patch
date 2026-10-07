@@ -1,0 +1,38 @@
+diff --git a/lib/Cloudflare/AI/LanguageModel.js b/lib/Cloudflare/AI/LanguageModel.js
+index f4095841172e3d9334b146352f631c982ff3d0b9..a1a24b0ab72b66e399a2932c7e45451c089ce76b 100644
+--- a/lib/Cloudflare/AI/LanguageModel.js
++++ b/lib/Cloudflare/AI/LanguageModel.js
+@@ -485,6 +485,13 @@ const updateChunkMeta = (state, chunk) => {
+     return s;
+ };
+ const handleNativeText = (state, chunk, parts, idGen, hasTools) => {
++    // Workers AI can mirror the same text in both the native `response` field
++    // and the OpenAI-compatible `choices[0].delta.content`. Prefer the latter
++    // (handled by handleOpenAiDelta) so every fragment is emitted exactly once.
++    const openAiContent = chunk.choices?.[0]?.delta?.content;
++    if (typeof openAiContent === "string" && openAiContent.length > 0) {
++        return Effect.succeed(state);
++    }
+     const native = chunk.response;
+     if (native == null || native === "")
+         return Effect.succeed(state);
+diff --git a/src/Cloudflare/AI/LanguageModel.ts b/src/Cloudflare/AI/LanguageModel.ts
+index e6d2881bfe589ca02d486800357e8baac97d8a3b..2aff1cc59cbf71a8639c6f7d9d59de7112b20542 100644
+--- a/src/Cloudflare/AI/LanguageModel.ts
++++ b/src/Cloudflare/AI/LanguageModel.ts
+@@ -793,6 +793,15 @@ const handleNativeText = (
+   idGen: IdGenerator.Service,
+   hasTools: boolean,
+ ): Effect.Effect<StreamState> => {
++  // Workers AI can mirror the same text in both the native `response` field
++  // and the OpenAI-compatible `choices[0].delta.content`. Prefer the latter
++  // (handled by handleOpenAiDelta) so every fragment is emitted exactly once.
++  const openAiContent = (
++    chunk.choices as Array<{ delta?: { content?: unknown } }> | undefined
++  )?.[0]?.delta?.content;
++  if (typeof openAiContent === "string" && openAiContent.length > 0) {
++    return Effect.succeed(state);
++  }
+   const native = chunk.response;
+   if (native == null || native === "") return Effect.succeed(state);
+   const text =
