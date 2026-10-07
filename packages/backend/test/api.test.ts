@@ -31,16 +31,7 @@ const { test, beforeAll, afterAll, deploy, destroy } = Test.make({
   state: Cloudflare.state(),
 });
 
-const stack = beforeAll(
-  Effect.gen(function* () {
-    const { url } = yield* deploy(Stack);
-    // Wait out workers.dev propagation. A non-upgrade request to the events
-    // endpoint answers 426, which `getWhenReady` does not retry.
-    yield* Test.getWhenReady(`${url}/chats/ready/events`);
-    return { url };
-  }),
-  { timeout: 300_000 },
-);
+const stack = beforeAll(deploy(Stack));
 
 // NOTE: in dev mode (ALCHEMY_DEV=1) `destroy` hangs past the hook timeout, and
 // there is nothing deployed to tear down, so only destroy live deployments.

@@ -33,14 +33,7 @@ const { test, beforeAll, afterAll, deploy, destroy } = Test.make({
   state: Cloudflare.state(),
 })
 
-const stack = beforeAll(
-  Effect.gen(function* () {
-    const outputs = yield* deploy(Stack)
-    yield* Test.getWhenReady(outputs.url)
-    return outputs
-  }),
-  { timeout: 300_000 },
-)
+const stack = beforeAll(deploy(Stack))
 
 // NOTE: in dev mode (ALCHEMY_DEV=1) `destroy` hangs past the hook timeout, and
 // there is nothing deployed to tear down, so only destroy live deployments.
