@@ -1,0 +1,57 @@
+name: Cleanup
+
+# Destroys a PR's stages when it closes. Kept out of ci.yml so that no CI run
+# can cancel it and leave resources behind.
+on:
+  pull_request:
+    types: [closed]
+
+concurrency:
+  group: cleanup-pr-${{ github.event.number }}
+  cancel-in-progress: false
+
+env:
+  STAGE: pr-${{ github.event.number }}
+
+jobs:
+  cleanup:
+    runs-on: ubuntu-latest
+    permissions:
+      actions: read
+      contents: read
+      pull-requests: write
+    env:
+      CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+      CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      PULL_REQUEST: ${{ github.event.number }}
+    steps:
+      # A CI run still in progress could deploy after we destroy, and its
+      # test suites tear down their own stages when they finish.
+      - name: Wait for the PR's CI runs to finish
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          HEAD_REF: ${{ github.event.pull_request.head.ref }}
+        run: |
+          for attempt in $(seq 1 120); do
+            active=$(gh api "repos/$GITHUB_REPOSITORY/actions/workflows/ci.yml/runs?event=pull_request&branch=$HEAD_REF" \
+              --jq '[.workflow_runs[] | select(.status != "completed")] | length')
+            [ "$active" = "0" ] && exit 0
+            echo "waiting for $active CI run(s)…"
+            sleep 30
+          done
+          echo "CI runs still active after 60 minutes; destroying anyway"
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - name: Destroy preview
+        run: pnpm exec alchemy destroy --stage ${{ env.STAGE }} --yes
+      # Normally removed by the demo job itself; this catches interrupted runs.
+      - name: Destroy demo stages
+        run: |
+          pnpm exec alchemy destroy --stage demo-${{ env.STAGE }} --yes
+          pnpm exec alchemy destroy --stage dev-${{ env.STAGE }} --yes

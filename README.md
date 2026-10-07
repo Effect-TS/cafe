@@ -21,7 +21,9 @@ AGENTS.md                  how we build: TDD with Alchemy-deployed tests, demos,
 alchemy.run.ts             stack: `@cafe/backend` Worker + Foldkit Website (VITE_API_URL -> Api url), PR preview comment in CI
 stacks/
   github.ts                stack: CI infra: Cloudflare credentials as Actions secrets, public R2 bucket for demos
-.github/workflows/ci.yml   check → live tests → deploy, one stage per PR, cleanup on close
+.github/workflows/
+  ci.yml                   check → live tests → deploy → demo, one stage per PR
+  cleanup.yml              destroys a PR's stages when it closes
 packages/
   api/                     @cafe/api: HTTP API + RPC schemas, safe to import from the browser
     src/
@@ -94,7 +96,7 @@ The e2e tests need Playwright's Chromium: `pnpm --filter @cafe/frontend exec pla
 2. **test**: backend API tests and Playwright e2e tests against real Cloudflare, in stage `test-pr-<number>` (each suite destroys what it deployed).
 3. **deploy**: `alchemy deploy` to stage `pr-<number>` (or `prod` on `main`), with a PR comment linking the preview.
 4. **demo**: records the demo (macOS, tcut) and uploads it to the demos bucket: `pr-<number>/<sha>/` goes into the PR's demo comment, `main/` is the README demo. PR demos expire after 30 days.
-5. **cleanup**: when a PR closes, `alchemy destroy` its `pr-<number>` stage.
+5. **cleanup** (`cleanup.yml`): when a PR closes, waits for the PR's CI runs to finish, then `alchemy destroy`s its `pr-<number>` and demo stages. It is a separate workflow so no CI run can cancel it.
 
 CI authenticates with the `CLOUDFLARE_API_TOKEN` and `CLOUDFLARE_ACCOUNT_ID` repository secrets. `stacks/github.ts` writes them from the profile it is deployed with, which must use a Cloudflare API token (requires admin on the repository):
 
