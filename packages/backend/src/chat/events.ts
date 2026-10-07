@@ -14,6 +14,28 @@ export const EventsHandler = Effect.gen(function* () {
           status: 426,
         });
       }
-      return yield* rooms.getByName(params.key).fetch(request);
+      const response = yield* rooms.getByName(params.key).fetch(request);
+      return withMutableHeaders(response);
     }).pipe(Effect.orDie);
 });
+
+// NOTE: a Response returned by a Durable Object stub has immutable headers, and
+// HttpServerResponse.toWeb sets the outgoing headers (e.g. CORS) on a raw
+// Response in place, which throws. Copy it so its headers can be modified.
+const withMutableHeaders = (
+  response: HttpServerResponse.HttpServerResponse,
+): HttpServerResponse.HttpServerResponse => {
+  const raw = response.body._tag === "Raw" ? response.body.body : undefined;
+  if (!(raw instanceof Response)) {
+    return response;
+  }
+  return HttpServerResponse.raw(
+    new Response(raw.body, {
+      status: raw.status,
+      statusText: raw.statusText,
+      headers: raw.headers,
+      // @ts-expect-error: `webSocket` is a Workers-only ResponseInit field
+      webSocket: (raw as { webSocket?: unknown }).webSocket,
+    }),
+  );
+};
