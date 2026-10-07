@@ -3,6 +3,9 @@
 import path from "node:path";
 import { isVideo } from "termcut";
 
+/** GitHub's image proxy (camo) won't serve README/comment images over ~5 MB. */
+const MAX_GIF_BYTES = 4_500_000;
+
 const args = process.argv.slice(2);
 const encodeOnly = args.includes("--encode-only");
 const file = path.resolve(import.meta.dir, args.find((a) => !a.startsWith("--")) ?? "demo.video.ts");
@@ -45,11 +48,25 @@ async function encodeForWeb(mp4: string) {
   await ffmpeg(["-i", mp4, "-vf", "scale=1920:-2:flags=lanczos", "-c:v", "libx264", "-crf", "23", "-preset", "slow", "-pix_fmt", "yuv420p", "-movflags", "+faststart", resized]);
   await Bun.write(mp4, Bun.file(resized));
   await Bun.file(resized).delete();
-  await ffmpeg([
-    "-i", mp4,
-    "-vf", "fps=10,scale=1280:-2:flags=lanczos,split[a][b];[a]palettegen=max_colors=128:stats_mode=diff[p];[b][p]paletteuse=dither=bayer:bayer_scale=5:diff_mode=rectangle",
-    "-loop", "0", gif,
-  ]);
+  // GitHub proxies README/comment images through camo, which refuses anything
+  // over ~5 MB (the image renders blank), so step down until the GIF fits.
+  const attempts = [
+    { width: 1280, fps: 10, colors: 128 },
+    { width: 1024, fps: 8, colors: 96 },
+    { width: 900, fps: 6, colors: 64 },
+    { width: 800, fps: 5, colors: 48 },
+  ];
+  for (const { width, fps, colors } of attempts) {
+    await ffmpeg([
+      "-i", mp4,
+      "-vf", `fps=${fps},scale=${width}:-2:flags=lanczos,split[a][b];[a]palettegen=max_colors=${colors}:stats_mode=diff[p];[b][p]paletteuse=dither=bayer:bayer_scale=5:diff_mode=rectangle`,
+      "-loop", "0", gif,
+    ]);
+    const size = Bun.file(gif).size;
+    console.log(`${gif}: ${width}px ${fps}fps ${colors} colors → ${(size / 1e6).toFixed(1)} MB`);
+    if (size <= MAX_GIF_BYTES) break;
+  }
+  if (Bun.file(gif).size > MAX_GIF_BYTES) throw new Error(`${gif} is still over ${MAX_GIF_BYTES} bytes`);
   console.log(`wrote ${mp4} (1920 wide) and ${gif}`);
 }
 
