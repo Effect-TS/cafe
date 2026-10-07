@@ -535,7 +535,7 @@ const messagesView = (
   })
 
 const formatSentAt = (sentAt: number): string =>
-  DateTime.format(DateTime.makeUnsafe(sentAt), {
+  DateTime.formatLocal(DateTime.makeUnsafe(sentAt), {
     hour: '2-digit',
     minute: '2-digit',
     second: '2-digit',

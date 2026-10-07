@@ -11,6 +11,7 @@ catalog:
   "@effect/platform-browser": 4.0.0
   "@effect/platform-bun": 4.0.0
   "@effect/platform-node": 4.0.0
+  "@effect/vitest": 4.0.0
   "@foldkit/devtools": 0.165.0
   "@foldkit/devtools-mcp": 0.24.0
   "@foldkit/oxlint-plugin": 0.15.1

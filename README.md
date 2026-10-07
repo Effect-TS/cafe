@@ -17,6 +17,8 @@ packages/
   backend/                 @cafe/backend: Worker (the `.` export) implementing @cafe/api
     src/
       worker.ts            Worker: serves Api with ChatLive
+    test/
+      api.test.ts          deploys the Worker with Test.make and drives the API (HTTP + WebSocket)
       chat/
         group.ts             ChatLive: Layer implementing the Chat group
         send-prompt.ts       sendPrompt handler (binds Room)
@@ -35,4 +37,11 @@ pnpm deploy     # alchemy deploy
 pnpm typecheck  # tsc --build across all packages
 pnpm test
 pnpm lint
+```
+
+Backend tests deploy the Worker to Cloudflare (stage `test_$USER`) and destroy it afterwards. Set `ALCHEMY_DEV=1` to run them against local workerd instead, and `ALCHEMY_PROFILE` to pick the Alchemy profile:
+
+```sh
+ALCHEMY_PROFILE=testing pnpm --filter @cafe/backend test
+ALCHEMY_PROFILE=testing ALCHEMY_DEV=1 pnpm --filter @cafe/backend test
 ```
