@@ -5,7 +5,6 @@ import {
   Effect,
   Match,
   Option,
-  Queue,
   Schema,
   Stream,
   String,
@@ -271,49 +270,32 @@ export const managedResources = ManagedResource.make<Model, Message>()(
 const decodeChatEvent = Schema.decodeUnknownOption(ChatEventJson)
 
 const streamChatEvents = (socket: WebSocket) =>
-  Stream.callback<
-    | typeof Message.ReceivedChatEvent.Type
-    | typeof Message.Disconnected.Type
-    | typeof Message.FailedConnect.Type
-  >(queue =>
-    Effect.acquireRelease(
-      Effect.sync(() => {
-        const handleMessage = (event: MessageEvent) => {
-          Option.match(decodeChatEvent(event.data), {
-            onNone: () => {},
-            onSome: chatEvent => {
-              Queue.offerUnsafe(
-                queue,
-                Message.ReceivedChatEvent({ event: chatEvent }),
-              )
-            },
-          })
-        }
-        const handleClose = () => {
-          Queue.offerUnsafe(queue, Message.Disconnected())
-          Queue.endUnsafe(queue)
-        }
-        const handleError = () => {
-          Queue.offerUnsafe(
-            queue,
-            Message.FailedConnect({ error: 'Connection error' }),
-          )
-          Queue.endUnsafe(queue)
-        }
-
-        socket.addEventListener('message', handleMessage)
-        socket.addEventListener('close', handleClose)
-        socket.addEventListener('error', handleError)
-
-        return { handleMessage, handleClose, handleError }
+  Subscription.fromEventFilterMap({
+    target: socket,
+    type: 'message',
+    filterMapEvent: event =>
+      Option.map(decodeChatEvent(event.data), chatEvent =>
+        Message.ReceivedChatEvent({ event: chatEvent }),
+      ),
+  }).pipe(
+    Stream.merge(
+      Subscription.fromEvent({
+        target: socket,
+        type: 'close',
+        mapEvent: () => Message.Disconnected(),
       }),
-      ({ handleMessage, handleClose, handleError }) =>
-        Effect.sync(() => {
-          socket.removeEventListener('message', handleMessage)
-          socket.removeEventListener('close', handleClose)
-          socket.removeEventListener('error', handleError)
-        }),
-    ).pipe(Effect.flatMap(() => Effect.never)),
+    ),
+    Stream.merge(
+      Subscription.fromEvent({
+        target: socket,
+        type: 'error',
+        mapEvent: () => Message.FailedConnect({ error: 'Connection error' }),
+      }),
+    ),
+    Stream.takeUntil(
+      message =>
+        message._tag === 'Disconnected' || message._tag === 'FailedConnect',
+    ),
   )
 
 export const subscriptions = Subscription.make<
