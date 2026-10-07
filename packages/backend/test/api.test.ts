@@ -1,15 +1,13 @@
 import { expect } from "@effect/vitest";
 import { Api } from "@cafe/api";
 import type { ChatEvent } from "@cafe/api/chat/event";
-import { ChatClient } from "@cafe/api/chat/client";
+import { connect } from "@cafe/api/room/connect";
 import * as Alchemy from "alchemy";
 import * as Cloudflare from "alchemy/Cloudflare";
 import * as Test from "alchemy/Test/Vitest";
 import * as Array from "effect/Array";
 import * as Config from "effect/Config";
-import * as Context from "effect/Context";
 import * as Effect from "effect/Effect";
-import * as Layer from "effect/Layer";
 import * as Queue from "effect/Queue";
 import * as Schedule from "effect/Schedule";
 import * as Stream from "effect/Stream";
@@ -73,9 +71,7 @@ const uniqueKey = (prefix: string) => `${prefix}-${crypto.randomUUID()}`;
 /** Subscribe to a chat's `events` stream over its WebSocket and queue the events. */
 const subscribe = (url: string, key: string) =>
   Effect.gen(function* () {
-    const client = yield* Layer.build(ChatClient.layer(url, key)).pipe(
-      Effect.map(Context.get(ChatClient)),
-    );
+    const client = yield* connect(url, key);
     const events = yield* Queue.unbounded<ChatEvent>();
     yield* client.events().pipe(
       Stream.runForEach((event) => Queue.offer(events, event)),

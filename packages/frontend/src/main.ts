@@ -1,10 +1,8 @@
 import {
   Array,
-  Context,
   DateTime,
   Duration,
   Effect,
-  Layer,
   Match,
   Option,
   Schema,
@@ -29,9 +27,9 @@ import { modifyFields } from 'foldkit/struct'
 import { Button, Input } from '@foldkit/ui'
 
 import { Api } from '@cafe/api'
-import { ChatClient, type ChatRpcClient } from '@cafe/api/chat/client'
 import { ChatEvent } from '@cafe/api/chat/event'
 import { ChatMessage } from '@cafe/api/chat/message'
+import { type RoomClient, connect } from '@cafe/api/room/connect'
 
 const API_URL = import.meta.env.VITE_API_URL
 const CONNECTION_TIMEOUT_MS = 5000
@@ -39,7 +37,7 @@ const CONNECTION_TIMEOUT_MS = 5000
 // MODEL
 
 const ChatConnection =
-  ManagedResource.tag<ChatRpcClient>()('ChatConnection')
+  ManagedResource.tag<RoomClient>()('ChatConnection')
 type ChatConnectionService = ManagedResource.ServiceOf<typeof ChatConnection>
 
 export const ConnectionState = defineTaggedUnion({
@@ -262,12 +260,8 @@ export const managedResources = ManagedResource.make<Model, Message>()(
       // The client's socket closes with the acquire Scope. A ping confirms
       // the Room is reachable before the chat counts as connected.
       acquire: chatKey =>
-        Layer.build(
-          ChatClient.layer(API_URL, chatKey).pipe(
-            Layer.provide(Socket.layerWebSocketConstructorGlobal),
-          ),
-        ).pipe(
-          Effect.map(Context.get(ChatClient)),
+        connect(API_URL, chatKey).pipe(
+          Effect.provide(Socket.layerWebSocketConstructorGlobal),
           Effect.tap(client => client.ping()),
           Effect.timeout(Duration.millis(CONNECTION_TIMEOUT_MS)),
           Effect.mapError(error =>
@@ -290,7 +284,7 @@ export const managedResources = ManagedResource.make<Model, Message>()(
 // SUBSCRIPTION
 
 /** The Room's events until the stream ends (Disconnected) or fails. */
-const streamChatEvents = (client: ChatRpcClient) =>
+const streamChatEvents = (client: RoomClient) =>
   client.events().pipe(
     Stream.map(event => Message.ReceivedChatEvent({ event })),
     Stream.concat(Stream.make(Message.Disconnected())),

@@ -1,7 +1,7 @@
 import * as Schema from "effect/Schema";
 import { ChatMessage } from "./message.ts";
 
-/** Frames sent over the events WebSocket. */
+/** What the Room streams to its subscribers. */
 export const ChatEvent = Schema.Union([
   /** A message was added to the chat (kept in the chat's history). */
   Schema.TaggedStruct("MessagePosted", { message: ChatMessage }),
@@ -17,6 +17,3 @@ export const ChatEvent = Schema.Union([
   }),
 ]);
 export type ChatEvent = typeof ChatEvent.Type;
-
-/** `ChatEvent` as it travels over the wire: a JSON string per frame. */
-export const ChatEventJson = Schema.fromJsonString(ChatEvent);

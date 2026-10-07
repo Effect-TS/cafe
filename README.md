@@ -15,23 +15,34 @@ packages/
   api/                     @cafe/api: HTTP API + RPC schemas, safe to import from the browser
     src/
       api.ts               Api (the `.` export)
-      chat/                `@cafe/api/chat/*`
-        group.ts             Chat group
+      chat/                `@cafe/api/chat`
+        index.ts             Chat: the HttpApi group
         send-prompt.ts       POST /chats/:key/prompts
-        rpcs.ts              ChatRpcs: the Room's RPCs (`events` stream, sendPrompt, ping)
-        socket.ts            /chats/:key/socket: the Room's RPC WebSocket
-        client.ts            ChatClient: ChatRpcs client over that WebSocket
         message.ts           ChatMessage
         event.ts             ChatEvent
+      room/                `@cafe/api/room`
+        index.ts             Room: the RpcGroup, reached over a WebSocket at /chats/:key/room
+        events.ts            events: history, then live ChatEvents (a stream)
+        send-prompt.ts       sendPrompt
+        ping.ts              ping
+        connect.ts           connect: a Room client over its WebSocket
   backend/                 @cafe/backend: Worker (the `.` export) implementing @cafe/api
     src/
-      worker.ts            Worker: forwards /chats/:key/socket to the Room, serves Api with ChatLive
+      worker.ts            Worker: forwards /chats/:key/room to the Room, serves Api with ChatLive
+      chat/
+        index.ts             ChatLive: Layer implementing the Chat group
+        send-prompt.ts       sendPrompt handler (forwards to the Room)
+      room/
+        index.ts             Room: RpcDurableObject implementing @cafe/api/room, one per chat key
+        events.ts            events handler
+        send-prompt.ts       sendPrompt handler
+        ping.ts              ping handler
+        history.ts           History: the chat's messages in storage
+        broadcast.ts         Broadcast: live events to every open stream
+        post.ts              Post: append to History and broadcast
+        reply.ts             Reply: stream the Workers AI reply
     test/
       api.test.ts          deploys the Worker with Test.make and drives the API (HTTP + RPC)
-      chat/
-        group.ts             ChatLive: Layer implementing the Chat group
-        send-prompt.ts       sendPrompt handler (binds Room)
-        room.ts              RpcDurableObject: one per chat key, serves ChatRpcs
   demos/                   @cafe/demos: the README demo, recorded with tcut (terminal + browser pane)
   frontend/                @cafe/frontend: Foldkit SPA, builds its client from @cafe/api
     src/

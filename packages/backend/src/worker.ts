@@ -7,9 +7,9 @@ import { HttpServerRequest } from "effect/http/HttpServerRequest";
 import * as HttpServerResponse from "effect/http/HttpServerResponse";
 import * as HttpApiBuilder from "effect/http-api/HttpApiBuilder";
 import { Api } from "@cafe/api";
-import { chatSocketPath } from "@cafe/api/chat/socket";
-import { ChatLive } from "./chat/group.ts";
-import Room from "./chat/room.ts";
+import { Room as RoomSchema } from "@cafe/api/room";
+import { ChatLive } from "./chat/index.ts";
+import Room from "./room/index.ts";
 
 export default Cloudflare.Worker(
   "Api",
@@ -47,11 +47,11 @@ export default Cloudflare.Worker(
           );
         }
 
-        // The chat's Room serves ChatRpcs over this WebSocket. Forwarded
+        // The chat's Room serves its RPCs over this WebSocket. Forwarded
         // before the HttpApi, so no HTTP middleware (CORS) touches the 101.
-        const socket = chatSocketPath.exec(path);
-        if (socket?.[1]) {
-          return yield* rooms.fetch(decodeURIComponent(socket[1]), request);
+        const key = RoomSchema.path.exec(path)?.[1];
+        if (key) {
+          return yield* rooms.fetch(decodeURIComponent(key), request);
         }
 
         return yield* api;

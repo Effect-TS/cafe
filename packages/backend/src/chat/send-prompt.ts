@@ -1,7 +1,7 @@
 import * as Effect from "effect/Effect";
 import type * as HttpApiEndpoint from "effect/http-api/HttpApiEndpoint";
 import type { SendPrompt } from "@cafe/api/chat/send-prompt";
-import Room from "./room.ts";
+import Room from "../room/index.ts";
 
 /** `POST /chats/:key/prompts`: forwards the prompt to the chat's Room. */
 export const SendPromptHandler = Effect.gen(function* () {
