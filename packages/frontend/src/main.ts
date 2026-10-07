@@ -53,10 +53,18 @@ export const SendState = defineTaggedUnion({
 })
 export type SendState = typeof SendState.Type
 
+/** An assistant response that has not been posted as a message yet. */
+export const Response = defineTaggedUnion({
+  Streaming: { id: Schema.String, text: Schema.String },
+  Failed: { id: Schema.String, error: Schema.String },
+})
+export type Response = typeof Response.Type
+
 export const Model = Schema.Struct({
   chatKeyInput: Schema.String,
   connection: ConnectionState,
   messages: Schema.Array(ChatMessage),
+  responses: Schema.Array(Response),
   promptInput: Schema.String,
   send: SendState,
 })
@@ -100,6 +108,7 @@ export const update = (model: Model, message: Message) =>
         model: modifyFields(model, {
           connection: () => ConnectionState.Connecting({ chatKey }),
           messages: () => [],
+          responses: () => [],
         }),
       }
     },
@@ -172,6 +181,31 @@ export const update = (model: Model, message: Message) =>
           MessagePosted: ({ message: chatMessage }) => ({
             model: modifyFields(model, {
               messages: messages => [...messages, chatMessage],
+              responses: responses =>
+                Array.filter(responses, ({ id }) => id !== chatMessage.id),
+            }),
+          }),
+          ResponseDelta: ({ responseId, text }) => ({
+            model: modifyFields(model, {
+              responses: responses =>
+                Array.some(responses, ({ id }) => id === responseId)
+                  ? Array.map(responses, response =>
+                      response.id === responseId && response._tag === 'Streaming'
+                        ? Response.Streaming({
+                            id: responseId,
+                            text: response.text + text,
+                          })
+                        : response,
+                    )
+                  : [...responses, Response.Streaming({ id: responseId, text })],
+            }),
+          }),
+          ResponseFailed: ({ responseId, error }) => ({
+            model: modifyFields(model, {
+              responses: responses => [
+                ...Array.filter(responses, ({ id }) => id !== responseId),
+                Response.Failed({ id: responseId, error }),
+              ],
             }),
           }),
         }),
@@ -185,6 +219,7 @@ export const init: Runtime.ApplicationInit<Model, Message> = () => ({
     chatKeyInput: 'lobby',
     connection: ConnectionState.Disconnected(),
     messages: [],
+    responses: [],
     promptInput: '',
     send: SendState.Idle(),
   },
@@ -347,7 +382,8 @@ export const view = (model: Model, h: HtmlBuilder<Message>): Document => ({
           ConnectionState.match(model.connection, {
             Disconnected: () => chatKeyFormView(model.chatKeyInput, h),
             Connecting: () => connectingView(h),
-            Connected: () => messagesView(model.messages, h),
+            Connected: () =>
+              messagesView(model.messages, model.responses, h),
             Error: ({ error }) => errorView(error, model.chatKeyInput, h),
           }),
           ConnectionState.match(model.connection, {
@@ -472,11 +508,11 @@ const connectingView = (h: HtmlBuilder<Message>): Html =>
 
 const messagesView = (
   messages: ReadonlyArray<ChatMessage>,
+  responses: ReadonlyArray<Response>,
   h: HtmlBuilder<Message>,
 ): Html =>
-  Array.match(messages, {
-    onEmpty: () =>
-      h.div(
+  Array.isReadonlyArrayEmpty(messages) && Array.isReadonlyArrayEmpty(responses)
+    ? h.div(
         [h.Class('flex-1 p-6 flex items-center justify-center')],
         [
           h.p(
@@ -484,37 +520,82 @@ const messagesView = (
             ['No messages yet. Send a prompt to get started!'],
           ),
         ],
-      ),
-    onNonEmpty: messages =>
-      h.div(
+      )
+    : h.div(
         [h.Class('flex-1 p-6 overflow-y-auto')],
         [
           h.ul(
             [h.Class('space-y-3')],
-            Array.map(messages, chatMessage =>
-              h.keyed('li')(
-                chatMessage.id,
-                [h.Class('flex flex-col items-start')],
-                [
-                  h.div(
-                    [
-                      h.Class(
-                        'bg-stone-200 text-stone-800 rounded-lg px-4 py-2 max-w-md break-words',
-                      ),
-                    ],
-                    [chatMessage.text],
-                  ),
-                  h.span(
-                    [h.Class('text-stone-400 text-xs mt-1')],
-                    [formatSentAt(chatMessage.sentAt)],
-                  ),
-                ],
+            [
+              ...Array.map(messages, chatMessage =>
+                messageView(chatMessage, h),
               ),
-            ),
+              ...Array.map(responses, response => responseView(response, h)),
+            ],
           ),
         ],
+      )
+
+const messageView = (chatMessage: ChatMessage, h: HtmlBuilder<Message>): Html =>
+  h.keyed('li')(
+    chatMessage.id,
+    [
+      h.DataAttribute('role', chatMessage.role),
+      h.Class(
+        chatMessage.role === 'user'
+          ? 'flex flex-col items-end'
+          : 'flex flex-col items-start',
       ),
-  })
+    ],
+    [
+      h.div(
+        [
+          h.Class(
+            chatMessage.role === 'user'
+              ? 'bg-amber-100 text-stone-800 rounded-lg px-4 py-2 max-w-md break-words whitespace-pre-wrap'
+              : 'bg-stone-200 text-stone-800 rounded-lg px-4 py-2 max-w-md break-words whitespace-pre-wrap',
+          ),
+        ],
+        [chatMessage.text],
+      ),
+      h.span(
+        [h.Class('text-stone-400 text-xs mt-1')],
+        [formatSentAt(chatMessage.sentAt)],
+      ),
+    ],
+  )
+
+const responseView = (response: Response, h: HtmlBuilder<Message>): Html =>
+  h.keyed('li')(
+    response.id,
+    [
+      h.DataAttribute('role', 'assistant'),
+      h.Class('flex flex-col items-start'),
+    ],
+    [
+      Response.match(response, {
+        Streaming: ({ text }) =>
+          h.div(
+            [
+              h.AriaBusy(true),
+              h.Class(
+                'bg-stone-200 text-stone-800 rounded-lg px-4 py-2 max-w-md break-words whitespace-pre-wrap',
+              ),
+            ],
+            [`${text}▍`],
+          ),
+        Failed: ({ error }) =>
+          h.div(
+            [
+              h.Class(
+                'bg-red-50 text-red-700 rounded-lg px-4 py-2 max-w-md break-words',
+              ),
+            ],
+            [`Response failed: ${error}`],
+          ),
+      }),
+    ],
+  )
 
 const formatSentAt = (sentAt: number): string =>
   DateTime.formatLocal(DateTime.makeUnsafe(sentAt), {

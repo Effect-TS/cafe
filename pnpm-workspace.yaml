@@ -40,3 +40,5 @@ allowBuilds:
 # @alchemy.run/frontend-frameworks peer set and therefore the same alchemy.
 overrides:
   hono: "catalog:"
+patchedDependencies:
+  alchemy@2.0.0-beta.80: patches/alchemy@2.0.0-beta.80.patch
