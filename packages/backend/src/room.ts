@@ -12,6 +12,8 @@ export default class Room extends Cloudflare.DurableObject<Room>()(
     const state = yield* Cloudflare.DurableObjectState;
 
     return Effect.gen(function* () {
+      yield* Effect.log("TODO: bindings");
+      
       return {
         fetch: Effect.gen(function* () {
           const [response] = yield* Cloudflare.upgrade();

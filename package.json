@@ -2,22 +2,15 @@
   "name": "cafe",
   "private": true,
   "type": "module",
-  "workspaces": ["web"],
+  "packageManager": "pnpm@12.9.1",
   "scripts": {
-    "dev": "alchemy dev",
-    "deploy": "alchemy deploy",
-    "destroy": "alchemy destroy",
-    "typecheck": "tsc --noEmit && bun --cwd web run typecheck"
-  },
-  "dependencies": {
-    "@alchemy.run/frontend-frameworks": "2.0.0-beta.80",
-    "@effect/platform-bun": "4.0.0",
-    "@effect/platform-node": "4.0.0",
-    "alchemy": "2.0.0-beta.80",
-    "effect": "4.0.0"
+    "dev": "pnpm --filter @cafe/backend dev",
+    "deploy": "pnpm --filter @cafe/backend deploy",
+    "destroy": "pnpm --filter @cafe/backend destroy",
+    "typecheck": "tsc --build",
+    "test": "pnpm --recursive test"
   },
   "devDependencies": {
-    "@types/bun": "latest",
-    "typescript": "^5.9.3"
+    "typescript": "catalog:"
   }
 }

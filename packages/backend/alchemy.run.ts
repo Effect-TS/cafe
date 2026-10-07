@@ -13,7 +13,7 @@ export default Alchemy.Stack(
     const api = yield* Api;
 
     const web = yield* Cloudflare.Website.Foldkit("Web", {
-      rootDir: "web",
+      rootDir: "../frontend",
       env: {
         VITE_API_URL: api.url.as<string>(),
       },

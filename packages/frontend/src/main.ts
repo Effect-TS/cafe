@@ -19,7 +19,7 @@ import {
   Subscription,
   type Update,
 } from 'foldkit'
-import { Document, Html, HtmlBuilder } from 'foldkit/html'
+import type { Document, Html, HtmlBuilder } from 'foldkit/html'
 import { defineMessageUnion } from 'foldkit/message'
 import { defineTaggedUnion } from 'foldkit/schema'
 import { modifyFields } from 'foldkit/struct'
@@ -32,7 +32,7 @@ import {
   ChatEventJson,
   ChatMessage,
   eventsUrl,
-} from '../../src/api'
+} from '@cafe/backend/api'
 
 const API_URL = import.meta.env.VITE_API_URL
 const CONNECTION_TIMEOUT_MS = 5000
