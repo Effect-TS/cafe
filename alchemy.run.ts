@@ -11,9 +11,9 @@ import Api from "@cafe/backend";
 /**
  * The demo CI recorded for this commit: `DEMO_URL` is its folder in the
  * public demos bucket (stacks/github.ts), e.g. https://pub-….r2.dev/pr-12/abc1234.
+ * GitHub only plays videos uploaded to GitHub inline, so this is a link.
  */
-const demoEmbed = (demoUrl: string) =>
-  `[![Demo of this preview](${demoUrl}/demo.gif)](${demoUrl}/demo.mp4)`;
+const demoLink = (demoUrl: string) => `**Demo:** ${demoUrl}/demo.mp4`;
 
 export default Alchemy.Stack(
   "Cafe",
@@ -45,7 +45,7 @@ export default Alchemy.Stack(
 
           ${Option.match(demoUrl, {
             onNone: () => "_Recording a demo of this commit…_",
-            onSome: demoEmbed,
+            onSome: demoLink,
           })}
 
           Built from commit ${github.sha.slice(0, 7)}.
