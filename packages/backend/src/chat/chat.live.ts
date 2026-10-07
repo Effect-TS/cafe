@@ -1,6 +1,6 @@
 import * as Effect from "effect/Effect";
 import * as HttpApiBuilder from "effect/http-api/HttpApiBuilder";
-import { Api } from "./api.ts";
+import { Api } from "../api.ts";
 import { EventsHandler } from "./events.live.ts";
 import { SendPromptHandler } from "./send-prompt.live.ts";
 

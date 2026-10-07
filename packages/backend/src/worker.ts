@@ -5,7 +5,7 @@ import * as Layer from "effect/Layer";
 import * as HttpRouter from "effect/http/HttpRouter";
 import * as HttpApiBuilder from "effect/http-api/HttpApiBuilder";
 import { Api } from "./api.ts";
-import { ChatLive } from "./chat.live.ts";
+import { ChatLive } from "./chat/chat.live.ts";
 
 export default Cloudflare.Worker(
   "Api",

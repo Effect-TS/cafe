@@ -8,16 +8,17 @@ packages/
   backend/                 @cafe/backend: Worker (`.` export) and Durable Object
     src/
       api.ts               Api, the `@cafe/backend/api` export (schema only, browser-safe)
-      chat.ts              Chat schema
-      send-prompt.ts       POST /chats/:key/prompts endpoint schema
-      events.ts            GET  /chats/:key/events WebSocket endpoint schema
-      chat-message.ts      ChatMessage schema
-      chat-event.ts        ChatEvent schema (WebSocket frames)
-      chat.live.ts         Layer implementing Chat from the handlers
-      send-prompt.live.ts  sendPrompt handler (binds Room)
-      events.live.ts       events handler (binds Room)
-      room.ts              Durable Object: one per chat key, fans events out to sockets
       worker.ts            Worker: wires Api + ChatLive into a fetch handler
+      chat/
+        chat.ts              Chat group schema
+        send-prompt.ts       POST /chats/:key/prompts endpoint schema
+        events.ts            GET  /chats/:key/events WebSocket endpoint schema
+        chat-message.ts      ChatMessage schema
+        chat-event.ts        ChatEvent schema (WebSocket frames)
+        chat.live.ts         Layer implementing Chat from the handlers
+        send-prompt.live.ts  sendPrompt handler (binds Room)
+        events.live.ts       events handler (binds Room)
+        room.ts              Durable Object: one per chat key, fans events out to sockets
   frontend/                @cafe/frontend: Foldkit SPA, uses `@cafe/backend/api` for its client
 ```
 
