@@ -21,6 +21,7 @@ catalog:
   "@foldkit/ui": 0.165.0
   "@foldkit/vite-plugin": 0.26.0
   "@tailwindcss/vite": ^4.3.3
+  "@types/bun": 1.4.2
   "@types/node": ^25.9.9
   alchemy: 2.0.0-beta.81
   effect: 4.0.0

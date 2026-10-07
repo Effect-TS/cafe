@@ -23,6 +23,9 @@
     },
     {
       "path": "./packages/frontend"
+    },
+    {
+      "path": "./packages/demos"
     }
   ]
 }
