@@ -25,6 +25,11 @@ packages/
         events.ts            events handler (binds Room)
         room.ts              Durable Object: one per chat key, fans events out to sockets
   frontend/                @cafe/frontend: Foldkit SPA, builds its client from @cafe/api
+    src/
+      story.test.ts        Story tests: update, Messages, and Commands (pure)
+      scene.test.ts        Scene tests: interactions through the rendered view (pure)
+    test/
+      chat.test.ts         e2e: deploys the Worker + site with Test.make, drives Chromium via Playwright
 ```
 
 `@cafe/api` may only import `effect` and its own files; `pnpm lint` enforces this (`packages/api/.oxlintrc.json`).
@@ -39,9 +44,13 @@ pnpm test
 pnpm lint
 ```
 
-Backend tests deploy the Worker to Cloudflare (stage `test_$USER`) and destroy it afterwards. Set `ALCHEMY_DEV=1` to run them against local workerd instead, and `ALCHEMY_PROFILE` to pick the Alchemy profile:
+Backend tests and frontend e2e tests deploy to Cloudflare (stage `test_$USER`) and destroy what they deployed afterwards. Set `ALCHEMY_DEV=1` to run them against local workerd/Vite instead, and `ALCHEMY_PROFILE` to pick the Alchemy profile:
 
 ```sh
-ALCHEMY_PROFILE=testing pnpm --filter @cafe/backend test
-ALCHEMY_PROFILE=testing ALCHEMY_DEV=1 pnpm --filter @cafe/backend test
+pnpm --filter @cafe/frontend test                          # Story + Scene unit tests
+ALCHEMY_PROFILE=testing pnpm --filter @cafe/backend test   # API integration tests
+ALCHEMY_PROFILE=testing pnpm --filter @cafe/frontend test:e2e
+ALCHEMY_PROFILE=testing ALCHEMY_DEV=1 pnpm --filter @cafe/frontend test:e2e
 ```
+
+The e2e tests need Playwright's Chromium: `pnpm --filter @cafe/frontend exec playwright install chromium`.

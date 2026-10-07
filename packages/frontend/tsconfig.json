@@ -6,16 +6,23 @@
       "DOM"
     ],
     "outDir": ".tsc",
-    "rootDir": "."
+    "rootDir": ".",
+    "types": [
+      "node"
+    ]
   },
   "include": [
     "src/**/*.ts",
+    "test/**/*.ts",
     "vite.config.ts",
     "vitest.config.ts"
   ],
   "references": [
     {
       "path": "../api"
+    },
+    {
+      "path": "../backend"
     }
   ]
 }

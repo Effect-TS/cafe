@@ -7,8 +7,9 @@
     "build": "vite build",
     "preview": "vite preview",
     "format": "oxfmt",
-    "test": "vitest run",
-    "lint": "oxlint src"
+    "test": "vitest run --project unit",
+    "test:e2e": "vitest run --project e2e",
+    "lint": "oxlint src test"
   },
   "dependencies": {
     "@cafe/api": "workspace:*",
@@ -18,14 +19,22 @@
     "foldkit": "catalog:"
   },
   "devDependencies": {
+    "@alchemy.run/frontend-frameworks": "catalog:",
+    "@cafe/backend": "workspace:*",
+    "@effect/platform-bun": "catalog:",
+    "@effect/platform-node": "catalog:",
+    "@effect/vitest": "catalog:",
     "@foldkit/devtools": "catalog:",
     "@foldkit/devtools-mcp": "catalog:",
     "@foldkit/oxlint-plugin": "catalog:",
     "@foldkit/vite-plugin": "catalog:",
     "@tailwindcss/vite": "catalog:",
+    "@types/node": "catalog:",
+    "alchemy": "catalog:",
     "happy-dom": "catalog:",
     "oxfmt": "catalog:",
     "oxlint": "catalog:",
+    "playwright": "catalog:",
     "tailwindcss": "catalog:",
     "typescript": "catalog:",
     "vite": "catalog:",
