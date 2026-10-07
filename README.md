@@ -1,6 +1,6 @@
 # cafe
 
-A minimal chat app built with Alchemy, Foldkit, and Effect HTTP, deployed to Cloudflare.
+A minimal chat app built with the CAFE stack (Cloudflare, Alchemy, Foldkit, Effect).
 
 [![Demo: alchemy deploy, chat in the browser, alchemy dev, pnpm test, ALCHEMY_DEV=1 pnpm test](https://pub-68e74efbba3b4272943c198da363bcab.r2.dev/main/demo.gif?v=2)](https://pub-68e74efbba3b4272943c198da363bcab.r2.dev/main/demo.mp4)
 
