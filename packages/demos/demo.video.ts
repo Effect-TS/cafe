@@ -161,7 +161,8 @@ const useChat = async (t: Video, chatKey: string, prompt: string) => {
   await t.browser.waitFor(/Join chat/);
   await fill(t, "#chat-key", chatKey);
   await submit(t);
-  await t.browser.waitFor(new RegExp(`#${chatKey}`));
+  // Connected once the prompt input renders ("Joining #key…" shows before).
+  await waitUntil(t, `document.querySelector("#prompt") !== null`, "the chat to connect");
   await t.sleep("500ms");
   await fill(t, "#prompt", prompt);
   await submit(t);
@@ -186,12 +187,14 @@ const submit = async (t: Video) => {
 };
 
 /** Types into a Foldkit input: set the value, then fire the `input` event it listens to. */
-const fill = (t: Video, selector: string, value: string) =>
-  t.browser.evaluate(`(() => {
+const fill = async (t: Video, selector: string, value: string) => {
+  await waitUntil(t, `document.querySelector(${JSON.stringify(selector)}) !== null`, selector);
+  await t.browser.evaluate(`(() => {
     const input = document.querySelector(${JSON.stringify(selector)});
     input.value = ${JSON.stringify(value)};
     input.dispatchEvent(new Event("input", { bubbles: true }));
   })()`);
+};
 
 const waitUntil = async (t: Video, condition: string, what: string) => {
   for (let attempt = 0; attempt < 240; attempt++) {
