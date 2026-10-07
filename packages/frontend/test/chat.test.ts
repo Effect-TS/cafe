@@ -145,12 +145,16 @@ test(
     const page = yield* openSite
 
     yield* joinChat(page, uniqueKey('reply'))
-    yield* sendPrompt(page, 'Say hello in five words.')
+    // A prompt with a known answer, so a mangled reply (e.g. every streamed
+    // chunk rendered twice: "PONGPONG") fails instead of passing as non-empty.
+    yield* sendPrompt(
+      page,
+      'Reply with exactly the word PONG in capitals and nothing else.',
+    )
     yield* waitForReply(page, 1)
 
     const [reply] = yield* messageTexts(page, 'assistant')
-    expect(reply?.trim().length).toBeGreaterThan(0)
-    expect(reply).not.toContain('▍')
+    expect(reply?.trim()).toMatch(/^PONG[.!]?$/)
   }).pipe(Effect.scoped),
   { timeout: 60_000 },
 )
