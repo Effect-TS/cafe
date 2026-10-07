@@ -3,7 +3,10 @@
 A minimal chat app built with Alchemy, Foldkit, and Effect HTTP, deployed to Cloudflare.
 
 ```
-alchemy.run.ts             stack: `@cafe/backend` Worker + Foldkit Website (VITE_API_URL -> Api url)
+alchemy.run.ts             stack: `@cafe/backend` Worker + Foldkit Website (VITE_API_URL -> Api url), PR preview comment in CI
+stacks/
+  github.ts                stack: publishes Cloudflare credentials as GitHub Actions secrets
+.github/workflows/ci.yml   check → live tests → deploy, one stage per PR, cleanup on close
 packages/
   api/                     @cafe/api: HTTP API schema, safe to import from the browser
     src/
@@ -38,7 +41,7 @@ packages/
 pnpm install
 pnpm exec alchemy profile edit --add Cloudflare   # first time only
 pnpm dev        # alchemy dev: Worker in workerd + Vite dev server for the frontend
-pnpm deploy     # alchemy deploy
+pnpm run deploy # alchemy deploy (`pnpm deploy` is a built-in pnpm command)
 pnpm typecheck  # tsc --build across all packages
 pnpm test
 pnpm lint
@@ -54,3 +57,18 @@ ALCHEMY_PROFILE=testing ALCHEMY_DEV=1 pnpm --filter @cafe/frontend test:e2e
 ```
 
 The e2e tests need Playwright's Chromium: `pnpm --filter @cafe/frontend exec playwright install chromium`.
+
+## CI
+
+`.github/workflows/ci.yml` runs on pushes to `main` and on pull requests:
+
+1. **check**: typecheck, lint, frontend unit tests.
+2. **test**: backend API tests and Playwright e2e tests against real Cloudflare, in stage `test-pr-<number>` (each suite destroys what it deployed).
+3. **deploy**: `alchemy deploy` to stage `pr-<number>` (or `prod` on `main`), with a PR comment linking the preview.
+4. **cleanup**: when a PR closes, `alchemy destroy` its `pr-<number>` stage.
+
+CI authenticates with the `CLOUDFLARE_API_TOKEN` and `CLOUDFLARE_ACCOUNT_ID` repository secrets. `stacks/github.ts` writes them from the profile it is deployed with, which must use a Cloudflare API token (requires admin on the repository):
+
+```sh
+pnpm exec alchemy deploy --config stacks/github.ts --profile testing
+```

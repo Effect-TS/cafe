@@ -11,7 +11,8 @@
     "rootDir": "."
   },
   "include": [
-    "alchemy.run.ts"
+    "alchemy.run.ts",
+    "stacks/**/*.ts"
   ],
   "references": [
     {

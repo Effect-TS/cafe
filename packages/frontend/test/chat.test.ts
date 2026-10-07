@@ -33,7 +33,17 @@ const { test, beforeAll, afterAll, deploy, destroy } = Test.make({
   state: Cloudflare.state(),
 })
 
-const stack = beforeAll(deploy(Stack))
+// NOTE: newly created Workers' workers.dev URLs answer 404 for a few seconds
+// after deploy (every new stage, e.g. each PR in CI). Wait until both route;
+// a plain GET to the API's events endpoint answers 426, which is accepted.
+const stack = beforeAll(
+  Effect.gen(function* () {
+    const outputs = yield* deploy(Stack)
+    yield* Test.getWhenReady(outputs.url)
+    yield* Test.getWhenReady(`${outputs.apiUrl}/chats/ready/events`)
+    return outputs
+  }),
+)
 
 // NOTE: in dev mode (ALCHEMY_DEV=1) `destroy` hangs past the hook timeout, and
 // there is nothing deployed to tear down, so only destroy live deployments.
