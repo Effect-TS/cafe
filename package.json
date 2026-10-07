@@ -1,0 +1,23 @@
+{
+  "name": "cafe",
+  "private": true,
+  "type": "module",
+  "workspaces": ["web"],
+  "scripts": {
+    "dev": "alchemy dev",
+    "deploy": "alchemy deploy",
+    "destroy": "alchemy destroy",
+    "typecheck": "tsc --noEmit && bun --cwd web run typecheck"
+  },
+  "dependencies": {
+    "@alchemy.run/frontend-frameworks": "2.0.0-beta.80",
+    "@effect/platform-bun": "4.0.0",
+    "@effect/platform-node": "4.0.0",
+    "alchemy": "2.0.0-beta.80",
+    "effect": "4.0.0"
+  },
+  "devDependencies": {
+    "@types/bun": "latest",
+    "typescript": "^5.9.3"
+  }
+}

@@ -1,0 +1,34 @@
+{
+  "name": "web",
+  "version": "0.1.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "typecheck": "tsc --noEmit",
+    "format": "oxfmt",
+    "test": "vitest run",
+    "lint": "oxlint src"
+  },
+  "dependencies": {
+    "@effect/platform-browser": "4.0.0",
+    "@foldkit/ui": "0.165.0",
+    "effect": "4.0.0",
+    "foldkit": "0.165.0"
+  },
+  "devDependencies": {
+    "@foldkit/devtools": "0.165.0",
+    "@foldkit/devtools-mcp": "0.24.0",
+    "@foldkit/oxlint-plugin": "0.15.1",
+    "@foldkit/vite-plugin": "0.26.0",
+    "@tailwindcss/vite": "^4.3.3",
+    "happy-dom": "^20.14.5",
+    "oxfmt": "^0.66.0",
+    "oxlint": "^1.85.0",
+    "tailwindcss": "^4.3.3",
+    "typescript": "^7.0.2",
+    "vite": "^8.3.1",
+    "vitest": "^5.0.2"
+  }
+}
