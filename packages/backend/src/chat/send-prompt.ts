@@ -1,6 +1,6 @@
 import * as Schema from "effect/Schema";
 import * as HttpApiEndpoint from "effect/http-api/HttpApiEndpoint";
-import { ChatMessage } from "./chat-message.ts";
+import { ChatMessage } from "./message.ts";
 
 /** POST a prompt to a chat; it is broadcast to every subscriber of `key`. */
 export const SendPrompt = HttpApiEndpoint.post(

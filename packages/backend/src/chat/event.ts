@@ -1,5 +1,5 @@
 import * as Schema from "effect/Schema";
-import { ChatMessage } from "./chat-message.ts";
+import { ChatMessage } from "./message.ts";
 
 /** Frames sent over the events WebSocket. */
 export const ChatEvent = Schema.Union([

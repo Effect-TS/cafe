@@ -1,8 +1,8 @@
 import * as Effect from "effect/Effect";
 import * as Schema from "effect/Schema";
 import type * as HttpApiEndpoint from "effect/http-api/HttpApiEndpoint";
-import { ChatEventJson } from "./chat-event.ts";
-import { ChatMessage } from "./chat-message.ts";
+import { ChatEventJson } from "./event.ts";
+import { ChatMessage } from "./message.ts";
 import Room from "./room.ts";
 import type { SendPrompt } from "./send-prompt.ts";
 
