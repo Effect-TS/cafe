@@ -27,14 +27,14 @@ import { modifyFields } from 'foldkit/struct'
 import { Button, Input } from '@foldkit/ui'
 
 import {
-  ChatApi,
+  Api,
   ChatEvent,
   ChatEventJson,
   ChatMessage,
 } from '@cafe/backend/api'
 
 const API_URL = import.meta.env.VITE_API_URL
-const apiUrls = HttpApiClient.urlBuilder(ChatApi, { baseUrl: API_URL })
+const apiUrls = HttpApiClient.urlBuilder(Api, { baseUrl: API_URL })
 const CONNECTION_TIMEOUT_MS = 5000
 
 // MODEL
@@ -200,7 +200,7 @@ export const SendPrompt = Command.define('SendPrompt', {
   args: { chatKey: Schema.String, text: Schema.String },
   messages: [Message.SucceededSendPrompt, Message.FailedSendPrompt],
   execute: ({ chatKey, text }) =>
-    HttpApiClient.make(ChatApi, { baseUrl: API_URL }).pipe(
+    HttpApiClient.make(Api, { baseUrl: API_URL }).pipe(
       Effect.flatMap(client =>
         client.Chat.sendPrompt({ params: { key: chatKey }, payload: { text } }),
       ),
