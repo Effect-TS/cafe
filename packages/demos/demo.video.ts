@@ -50,10 +50,11 @@ export const teardown = async () => {
 export default defineVideo(
   {
     output: ["out/demo.mp4"],
-    width: 1920,
+    // Terminal and browser side by side, half each. With no cols/rows, tcut
+    // sizes the terminal grid to fill its 960×1080 half.
+    width: 960,
     height: 1080,
-    cols: 100,
-    rows: 34,
+    font: { size: 16 },
     fps: 30,
     maxPause: "1.5s",
     windowBar: "colorful",
