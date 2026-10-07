@@ -14,6 +14,8 @@ Agents work in parallel, each in its own git worktree and on its own PR. Every P
 
 The details are in [AGENTS.md](AGENTS.md).
 
+## Repo
+
 ```
 AGENTS.md                  how we build: TDD with Alchemy-deployed tests, demos, parallel worktrees
 alchemy.run.ts             stack: `@cafe/backend` Worker + Foldkit Website (VITE_API_URL -> Api url), PR preview comment in CI
