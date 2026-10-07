@@ -1,7 +1,6 @@
 import * as Context from "effect/Context";
 import * as Effect from "effect/Effect";
 import * as Layer from "effect/Layer";
-import * as HttpServerRequest from "effect/http/HttpServerRequest";
 import * as HttpServerResponse from "effect/http/HttpServerResponse";
 import type * as HttpApiEndpoint from "effect/http-api/HttpApiEndpoint";
 import type { Events } from "./events.ts";
@@ -9,11 +8,7 @@ import Room from "./room.ts";
 
 export class EventsHandler extends Context.Service<
   EventsHandler,
-  HttpApiEndpoint.Handler<
-    typeof Events,
-    never,
-    HttpServerRequest.HttpServerRequest
-  >
+  HttpApiEndpoint.Handler<typeof Events, never, never>
 >()("EventsHandler") {}
 
 export const EventsLive = Layer.effect(
@@ -21,9 +16,8 @@ export const EventsLive = Layer.effect(
   Effect.gen(function* () {
     const rooms = yield* Room;
 
-    return ({ params }) =>
+    return ({ params, request }) =>
       Effect.gen(function* () {
-        const request = yield* HttpServerRequest.HttpServerRequest;
         if (request.headers.upgrade !== "websocket") {
           return HttpServerResponse.text("Expected Upgrade: websocket", {
             status: 426,
