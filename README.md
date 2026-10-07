@@ -12,25 +12,26 @@ stacks/
   github.ts                stack: CI infra: Cloudflare credentials as Actions secrets, public R2 bucket for demos
 .github/workflows/ci.yml   check → live tests → deploy, one stage per PR, cleanup on close
 packages/
-  api/                     @cafe/api: HTTP API schema, safe to import from the browser
+  api/                     @cafe/api: HTTP API + RPC schemas, safe to import from the browser
     src/
       api.ts               Api (the `.` export)
       chat/                `@cafe/api/chat/*`
         group.ts             Chat group
         send-prompt.ts       POST /chats/:key/prompts
-        events.ts            GET  /chats/:key/events (WebSocket)
+        rpcs.ts              ChatRpcs: the Room's RPCs (`events` stream, sendPrompt, ping)
+        socket.ts            /chats/:key/socket: the Room's RPC WebSocket
+        client.ts            ChatClient: ChatRpcs client over that WebSocket
         message.ts           ChatMessage
-        event.ts             ChatEvent (WebSocket frames)
+        event.ts             ChatEvent
   backend/                 @cafe/backend: Worker (the `.` export) implementing @cafe/api
     src/
-      worker.ts            Worker: serves Api with ChatLive
+      worker.ts            Worker: forwards /chats/:key/socket to the Room, serves Api with ChatLive
     test/
-      api.test.ts          deploys the Worker with Test.make and drives the API (HTTP + WebSocket)
+      api.test.ts          deploys the Worker with Test.make and drives the API (HTTP + RPC)
       chat/
         group.ts             ChatLive: Layer implementing the Chat group
         send-prompt.ts       sendPrompt handler (binds Room)
-        events.ts            events handler (binds Room)
-        room.ts              Durable Object: one per chat key, fans events out to sockets
+        room.ts              RpcDurableObject: one per chat key, serves ChatRpcs
   demos/                   @cafe/demos: the README demo, recorded with tcut (terminal + browser pane)
   frontend/                @cafe/frontend: Foldkit SPA, builds its client from @cafe/api
     src/

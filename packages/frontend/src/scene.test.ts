@@ -75,7 +75,7 @@ describe('view', () => {
       click(role('button', { name: 'Join chat' })),
       expect(text('Connecting…')).toExist(),
       expect(text('Joining #kitchen…')).toExist(),
-      ManagedResource.acquire(managedResources.chatSocket),
+      ManagedResource.acquire(managedResources.chatConnection),
       expect(text('#kitchen')).toExist(),
       expect(
         text('No messages yet. Send a prompt to get started!'),
@@ -90,7 +90,7 @@ describe('view', () => {
       given(idleModel),
       click(role('button', { name: 'Join chat' })),
       ManagedResource.failAcquire(
-        managedResources.chatSocket,
+        managedResources.chatConnection,
         new Error('Connection timeout'),
       ),
       expect(text('Connection Error')).toExist(),
@@ -157,7 +157,7 @@ describe('view', () => {
       { update, view },
       given(connectedModel),
       click(role('button', { name: 'Leave' })),
-      ManagedResource.release(managedResources.chatSocket),
+      ManagedResource.release(managedResources.chatConnection),
       expect(text('Pick a chat key to join')).toExist(),
       expect(role('button', { name: 'Join chat' })).toExist(),
     )

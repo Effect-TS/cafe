@@ -1,15 +1,18 @@
 import { expect } from "@effect/vitest";
 import { Api } from "@cafe/api";
-import { ChatEventJson, type ChatEvent } from "@cafe/api/chat/event";
+import type { ChatEvent } from "@cafe/api/chat/event";
+import { ChatClient } from "@cafe/api/chat/client";
 import * as Alchemy from "alchemy";
 import * as Cloudflare from "alchemy/Cloudflare";
 import * as Test from "alchemy/Test/Vitest";
 import * as Array from "effect/Array";
 import * as Config from "effect/Config";
+import * as Context from "effect/Context";
 import * as Effect from "effect/Effect";
+import * as Layer from "effect/Layer";
 import * as Queue from "effect/Queue";
 import * as Schedule from "effect/Schedule";
-import * as Schema from "effect/Schema";
+import * as Stream from "effect/Stream";
 import * as HttpBody from "effect/http/HttpBody";
 import * as HttpClient from "effect/http/HttpClient";
 import * as HttpClientRequest from "effect/http/HttpClientRequest";
@@ -66,32 +69,18 @@ afterAll.skipIf(flag("NO_DESTROY") || flag("ALCHEMY_DEV"))(destroy(Stack));
 
 const uniqueKey = (prefix: string) => `${prefix}-${crypto.randomUUID()}`;
 
-const decodeEvent = Schema.decodeUnknownEffect(ChatEventJson);
 
-/** Open a WebSocket on a chat's events stream and collect decoded frames. */
+/** Subscribe to a chat's `events` stream over its WebSocket and queue the events. */
 const subscribe = (url: string, key: string) =>
   Effect.gen(function* () {
-    const urls = HttpApiClient.urlBuilder(Api, { baseUrl: url });
-    const socket = yield* Socket.makeWebSocket(
-      urls.Chat.events({ params: { key } }).replace(/^http/, "ws"),
+    const client = yield* Layer.build(ChatClient.layer(url, key)).pipe(
+      Effect.map(Context.get(ChatClient)),
     );
-    // Acquiring the reader dials the socket and waits for it to open.
-    const pull = yield* Socket.readerString(socket);
     const events = yield* Queue.unbounded<ChatEvent>();
-
-    yield* pull.pipe(
-      Effect.flatMap((frames) =>
-        Effect.forEach(frames, (frame) =>
-          decodeEvent(frame).pipe(
-            Effect.flatMap((event) => Queue.offer(events, event)),
-          ),
-        ),
-      ),
-      Effect.forever,
-      Effect.ignore,
+    yield* client.events().pipe(
+      Stream.runForEach((event) => Queue.offer(events, event)),
       Effect.forkScoped,
     );
-
     return { next: Queue.take(events) };
   });
 
@@ -137,19 +126,6 @@ test(
     );
 
     expect(response.status).toBe(400);
-  }),
-);
-
-test(
-  "events requires a WebSocket upgrade",
-  Effect.gen(function* () {
-    const { url } = yield* stack;
-
-    const response = yield* HttpClient.get(
-      `${url}/chats/${uniqueKey("plain")}/events`,
-    );
-
-    expect(response.status).toBe(426);
   }),
 );
 
