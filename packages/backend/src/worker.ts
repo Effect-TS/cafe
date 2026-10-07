@@ -10,21 +10,18 @@ import { ChatLive } from "./chat.live.ts";
 export default Cloudflare.Worker(
   "Api",
   { main: import.meta.url },
-  Effect.gen(function* () {
-    return {
-      fetch: yield* HttpRouter.toHttpEffect(
-        HttpApiBuilder.layer(ChatApi).pipe(
-          Layer.provide(ChatLive),
-          Layer.provide(Http.Platform),
-          Layer.provide(
-            HttpRouter.cors({
-              allowedOrigins: ["*"],
-              allowedMethods: ["GET", "POST", "OPTIONS"],
-              allowedHeaders: ["Content-Type"],
-            }),
-          ),
-        ),
+  HttpRouter.toHttpEffect(
+    HttpApiBuilder.layer(ChatApi).pipe(
+      Layer.provide(ChatLive),
+      Layer.provide(Http.Platform),
+      Layer.provide(
+        HttpRouter.cors({
+          allowedOrigins: ["*"],
+          allowedMethods: ["GET", "POST", "OPTIONS"],
+          allowedHeaders: ["Content-Type"],
+        }),
       ),
-    };
-  }),
+    ),
+  ).pipe(Effect.map((fetch) => ({ fetch })))
+  
 );
