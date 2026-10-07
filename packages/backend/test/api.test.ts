@@ -69,16 +69,15 @@ const uniqueKey = (prefix: string) => `${prefix}-${crypto.randomUUID()}`;
 
 
 /** Subscribe to a chat's `events` stream over its WebSocket and queue the events. */
-const subscribe = (url: string, key: string) =>
-  Effect.gen(function* () {
-    const client = yield* connect(url, key);
-    const events = yield* Queue.unbounded<ChatEvent>();
-    yield* client.events().pipe(
-      Stream.runForEach((event) => Queue.offer(events, event)),
-      Effect.forkScoped,
-    );
-    return { next: Queue.take(events) };
-  });
+const subscribe = Effect.fn("subscribe")(function* (url: string, key: string) {
+  const client = yield* connect(url, key);
+  const events = yield* Queue.unbounded<ChatEvent>();
+  yield* client.events().pipe(
+    Stream.runForEach((event) => Queue.offer(events, event)),
+    Effect.forkScoped,
+  );
+  return { next: Queue.take(events) };
+});
 
 test(
   "health answers ok",

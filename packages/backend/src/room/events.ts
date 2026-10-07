@@ -10,19 +10,17 @@ export const EventsHandler = Effect.gen(function* () {
   const history = yield* History;
   const broadcast = yield* Broadcast;
 
-  return () =>
-    Stream.unwrap(
-      Effect.gen(function* () {
-        // Subscribe before reading history, so nothing posted in between
-        // is missed.
-        const live = yield* PubSub.subscribe(broadcast);
-        const messages = yield* history.messages;
-        return Stream.concat(
-          Stream.fromIterable(
-            messages.map((message): ChatEvent => ({ _tag: "MessagePosted", message })),
-          ),
-          Stream.fromSubscription(live),
-        );
-      }),
+  // Subscribe before reading history, so nothing posted in between is missed.
+  const subscribe = Effect.fn("Room.events")(function* () {
+    const live = yield* PubSub.subscribe(broadcast);
+    const messages = yield* history.messages;
+    return Stream.concat(
+      Stream.fromIterable(
+        messages.map((message): ChatEvent => ({ _tag: "MessagePosted", message })),
+      ),
+      Stream.fromSubscription(live),
     );
+  });
+
+  return () => Stream.unwrap(subscribe());
 });

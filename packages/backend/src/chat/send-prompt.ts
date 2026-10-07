@@ -7,9 +7,12 @@ import Room from "../room/index.ts";
 export const SendPromptHandler = Effect.gen(function* () {
   const rooms = yield* Room;
 
-  return ({ params, payload }: HttpApiEndpoint.Request<typeof SendPrompt>) =>
-    Effect.gen(function* () {
+  return Effect.fn("Chat.sendPrompt")(
+    function* ({ params, payload }: HttpApiEndpoint.Request<typeof SendPrompt>) {
       const room = yield* rooms.getByName(params.key);
       return yield* room.sendPrompt({ key: params.key, text: payload.text });
-    }).pipe(Effect.scoped, Effect.orDie);
+    },
+    Effect.scoped,
+    Effect.orDie,
+  );
 });

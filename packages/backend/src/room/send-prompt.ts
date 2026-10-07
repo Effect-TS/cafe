@@ -12,17 +12,19 @@ export const SendPromptHandler = Effect.gen(function* () {
   const post = yield* Post;
   const reply = yield* Reply;
 
-  return ({ key, text }: Rpc.Payload<typeof SendPrompt>) =>
-    Effect.gen(function* () {
-      const message = ChatMessage.make({
-        id: crypto.randomUUID(),
-        key,
-        role: "user",
-        text,
-        sentAt: Date.now(),
-      });
-      yield* post(message);
-      yield* reply(key, yield* history.messages);
-      return message;
+  return Effect.fn("Room.sendPrompt")(function* ({
+    key,
+    text,
+  }: Rpc.Payload<typeof SendPrompt>) {
+    const message = ChatMessage.make({
+      id: crypto.randomUUID(),
+      key,
+      role: "user",
+      text,
+      sentAt: Date.now(),
     });
+    yield* post(message);
+    yield* reply(key, yield* history.messages);
+    return message;
+  });
 });

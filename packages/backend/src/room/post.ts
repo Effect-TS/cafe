@@ -9,11 +9,8 @@ export const Post = Effect.gen(function* () {
   const history = yield* History;
   const broadcast = yield* Broadcast;
 
-  return (message: ChatMessage) =>
-    history.append(message).pipe(
-      Effect.andThen(
-        PubSub.publish(broadcast, { _tag: "MessagePosted", message }),
-      ),
-      Effect.asVoid,
-    );
+  return Effect.fn("Room.post")(function* (message: ChatMessage) {
+    yield* history.append(message);
+    yield* PubSub.publish(broadcast, { _tag: "MessagePosted", message });
+  });
 });

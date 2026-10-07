@@ -32,14 +32,17 @@ export class History extends Context.Service<
 
       return {
         messages,
-        append: (message) =>
-          Effect.gen(function* () {
+        append: Effect.fn("History.append")(
+          function* (message: ChatMessage) {
             const history = yield* messages;
             yield* state.storage.put(
               MESSAGES_KEY,
               [...history, message].slice(-MESSAGES_LIMIT),
             );
-          }).pipe(Effect.orDie, Effect.provideContext(runtime)),
+          },
+          Effect.orDie,
+          Effect.provideContext(runtime),
+        ),
       };
     }),
   );

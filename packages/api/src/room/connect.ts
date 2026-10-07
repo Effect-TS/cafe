@@ -9,18 +9,20 @@ import { Room } from "./index.ts";
 export type RoomClient = RpcClient.FromGroup<typeof Room, RpcClientError>;
 
 /** Connects to the chat `key`'s Room; the WebSocket closes with the Scope. */
-export const connect = (baseUrl: string, key: string) =>
-  Effect.gen(function* () {
-    const protocol = yield* Layer.build(
-      RpcClient.layerProtocolSocket().pipe(
-        Layer.provide([
-          Socket.layerWebSocket(Room.url(baseUrl, key)),
-          RpcSerialization.layerJson,
-        ]),
-      ),
-    );
-    const client: RoomClient = yield* RpcClient.make(Room).pipe(
-      Effect.provide(protocol),
-    );
-    return client;
-  });
+export const connect = Effect.fn("Room.connect")(function* (
+  baseUrl: string,
+  key: string,
+) {
+  const protocol = yield* Layer.build(
+    RpcClient.layerProtocolSocket().pipe(
+      Layer.provide([
+        Socket.layerWebSocket(Room.url(baseUrl, key)),
+        RpcSerialization.layerJson,
+      ]),
+    ),
+  );
+  const client: RoomClient = yield* RpcClient.make(Room).pipe(
+    Effect.provide(protocol),
+  );
+  return client;
+});
