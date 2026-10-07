@@ -5,28 +5,37 @@ import { defineVideo } from "termcut";
 //
 //   pnpm --filter @cafe/demos record
 //
-// Deploys the stage `demo` with the Alchemy profile $ALCHEMY_PROFILE (default
-// `testing`); record.ts runs `setup` and `teardown` around the recording.
+// Deploys the stage $DEMO_STAGE (default `demo`); record.ts runs `setup` and
+// `teardown` around the recording. Locally it uses the Alchemy profile
+// $ALCHEMY_PROFILE (default `testing`); in CI the CLOUDFLARE_* env vars.
 
-const profile = process.env.ALCHEMY_PROFILE ?? "testing";
-const stage = "demo";
+const ci = process.env.CI === "true";
+const profile = ci ? undefined : (process.env.ALCHEMY_PROFILE ?? "testing");
+const stage = process.env.DEMO_STAGE ?? "demo";
 
-const destroyStage = async () => {
+const destroyStage = async (stageToDestroy: string) => {
   const proc = Bun.spawn(
-    ["pnpm", "exec", "alchemy", "destroy", "--stage", stage, "--yes", "--no-input"],
+    ["pnpm", "exec", "alchemy", "destroy", "--stage", stageToDestroy, "--yes", "--no-input"],
     {
       cwd: `${import.meta.dir}/../..`,
-      env: { ...process.env, ALCHEMY_PROFILE: profile },
+      env: profile ? { ...process.env, ALCHEMY_PROFILE: profile } : process.env,
       stdout: "inherit",
       stderr: "inherit",
     },
   );
-  if ((await proc.exited) !== 0) throw new Error(`alchemy destroy --stage ${stage} failed`);
+  if ((await proc.exited) !== 0) {
+    throw new Error(`alchemy destroy --stage ${stageToDestroy} failed`);
+  }
 };
 
 /** Start from nothing deployed, so the recorded deploy creates the resources. */
-export const setup = destroyStage;
-export const teardown = destroyStage;
+export const setup = () => destroyStage(stage);
+
+/** Remove the demo stage, and in CI the run's `alchemy dev` stage ($ALCHEMY_STAGE). */
+export const teardown = async () => {
+  await destroyStage(stage);
+  if (ci && process.env.ALCHEMY_STAGE) await destroyStage(process.env.ALCHEMY_STAGE);
+};
 
 export default defineVideo(
   {
@@ -45,7 +54,11 @@ export default defineVideo(
   },
   async (t) => {
     await t.hide(async () => {
-      await t.run(`cd ../.. && export ALCHEMY_PROFILE=${profile} && clear`);
+      await t.run(
+        profile
+          ? `cd ../.. && export ALCHEMY_PROFILE=${profile} && clear`
+          : "cd ../.. && clear",
+      );
     });
 
     // 1. Deploy

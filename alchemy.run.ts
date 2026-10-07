@@ -6,6 +6,14 @@ import * as Effect from "effect/Effect";
 import * as Layer from "effect/Layer";
 import Api from "@cafe/backend";
 
+/**
+ * The demo CI recorded for this commit, served by the preview site itself
+ * (packages/frontend/public/demo). `?v=` keeps GitHub's image proxy from
+ * showing the previous commit's GIF.
+ */
+const demoEmbed = (siteUrl: Output.Output<string>, sha: string) =>
+  Output.interpolate`[![Demo of this preview](${siteUrl}/demo/demo.gif?v=${sha.slice(0, 7)})](${siteUrl}/demo/demo.mp4?v=${sha.slice(0, 7)})`;
+
 export default Alchemy.Stack(
   "Cafe",
   {
@@ -32,7 +40,8 @@ export default Alchemy.Stack(
           ## Preview deployed
 
           **App:** ${web.url}
-          **API:** ${api.url}
+
+          ${process.env.PREVIEW_DEMO ? demoEmbed(web.url.as<string>(), github.sha) : "_Recording a demo of this commit…_"}
 
           Built from commit ${github.sha.slice(0, 7)}.
 

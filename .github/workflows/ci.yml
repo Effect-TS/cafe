@@ -89,6 +89,59 @@ jobs:
       - name: Deploy
         run: pnpm exec alchemy deploy --stage ${{ env.STAGE }} --yes
 
+  demo:
+    # Records the README demo against this PR's code, then republishes the
+    # preview so its site serves the demo and the preview comment embeds it.
+    needs: deploy
+    if: github.event_name == 'pull_request'
+    # tcut's browser pane records through WebKit, which macOS has built in.
+    runs-on: macos-latest
+    timeout-minutes: 30
+    permissions:
+      contents: read
+      pull-requests: write
+    env:
+      CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+      CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: pnpm
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: 1.4.2
+      - run: brew install ffmpeg
+      - run: pnpm install --frozen-lockfile
+      - name: Check Cloudflare credentials
+        run: pnpm exec alchemy provider check-env --provider Cloudflare
+      # Stages for this PR's demo: the deploy it records, `alchemy dev`, and
+      # the test suites. The demo destroys them when it finishes.
+      - name: Set demo stages
+        run: |
+          echo "DEMO_STAGE=demo-$STAGE" >> "$GITHUB_ENV"
+          echo "ALCHEMY_STAGE=dev-$STAGE" >> "$GITHUB_ENV"
+          echo "ALCHEMY_TEST_STAGE=test-demo-$STAGE" >> "$GITHUB_ENV"
+      - name: Record demo
+        run: pnpm demo
+      - name: Publish demo with the preview
+        run: |
+          mkdir -p packages/frontend/public/demo
+          cp packages/demos/out/demo.gif packages/demos/out/demo.mp4 packages/frontend/public/demo/
+          pnpm exec alchemy deploy --stage ${{ env.STAGE }} --yes
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          PULL_REQUEST: ${{ github.event.number }}
+          PREVIEW_DEMO: "1"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: demo
+          path: |
+            packages/demos/out/demo.gif
+            packages/demos/out/demo.mp4
+
   cleanup:
     if: github.event_name == 'pull_request' && github.event.action == 'closed'
     runs-on: ubuntu-latest
@@ -116,3 +169,8 @@ jobs:
           fi
       - name: Destroy preview
         run: pnpm exec alchemy destroy --stage ${{ env.STAGE }} --yes
+      # Normally removed by the demo job itself; this catches interrupted runs.
+      - name: Destroy demo stages
+        run: |
+          pnpm exec alchemy destroy --stage demo-${{ env.STAGE }} --yes
+          pnpm exec alchemy destroy --stage dev-${{ env.STAGE }} --yes
