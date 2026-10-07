@@ -6,7 +6,18 @@ A minimal chat app built with the CAFE stack (Cloudflare, Alchemy, Foldkit, Effe
 
 <sub>Recorded by CI from `main` with [tcut](https://github.com/AmanVarshney01/tcut) ([`packages/demos/demo.video.ts`](packages/demos/demo.video.ts)) and hosted in R2 (`stacks/github.ts`). Every PR gets a demo comment with a demo of that PR. Locally: `pnpm demo`. Click for the MP4.</sub>
 
+## How agents build here
+
+Coding agents do most of the work in this repo, and every change is test-driven against real infrastructure. An agent writes a failing test first: a Playwright test for the website, an API test for the backend, or a Foldkit Story or Scene test for the UI logic. It gets the test passing locally with `alchemy dev`, then reruns it against real Cloudflare with `pnpm test`.
+
+Agents work in parallel, each in its own git worktree and on its own PR. Every PR gets a preview deployment and a recorded demo video, so you can review a change by watching it work. Small PRs, merged often.
+
+The details are in [AGENTS.md](AGENTS.md).
+
+## Repo
+
 ```
+AGENTS.md                  how we build: TDD with Alchemy-deployed tests, demos, parallel worktrees
 alchemy.run.ts             stack: `@cafe/backend` Worker + Foldkit Website (VITE_API_URL -> Api url), PR preview comment in CI
 stacks/
   github.ts                stack: CI infra: Cloudflare credentials as Actions secrets, public R2 bucket for demos
