@@ -1,7 +1,7 @@
 import * as Alchemy from "alchemy";
 import * as Cloudflare from "alchemy/Cloudflare";
 import * as Effect from "effect/Effect";
-import Api from "./src/worker.ts";
+import Api from "@cafe/backend";
 
 export default Alchemy.Stack(
   "Cafe",
@@ -13,7 +13,7 @@ export default Alchemy.Stack(
     const api = yield* Api;
 
     const web = yield* Cloudflare.Website.Foldkit("Web", {
-      rootDir: "../frontend",
+      rootDir: "packages/frontend",
       env: {
         VITE_API_URL: api.url.as<string>(),
       },

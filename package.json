@@ -4,13 +4,24 @@
   "type": "module",
   "packageManager": "pnpm@12.9.1",
   "scripts": {
-    "dev": "pnpm --filter @cafe/backend dev",
-    "deploy": "pnpm --filter @cafe/backend deploy",
-    "destroy": "pnpm --filter @cafe/backend destroy",
+    "dev": "alchemy dev",
+    "deploy": "alchemy deploy",
+    "destroy": "alchemy destroy",
     "typecheck": "tsc --build",
     "test": "pnpm --recursive test"
   },
+  "dependencies": {
+    "@alchemy.run/frontend-frameworks": "catalog:",
+    "@cafe/backend": "workspace:*",
+    "@cafe/frontend": "workspace:*",
+    "@effect/platform-bun": "catalog:",
+    "@effect/platform-node": "catalog:",
+    "alchemy": "catalog:",
+    "effect": "catalog:"
+  },
   "devDependencies": {
-    "typescript": "catalog:"
+    "@types/node": "catalog:",
+    "typescript": "catalog:",
+    "vite": "catalog:"
   }
 }

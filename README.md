@@ -3,9 +3,9 @@
 A minimal chat app built with Alchemy, Foldkit, and Effect HTTP, deployed to Cloudflare.
 
 ```
+alchemy.run.ts             stack: `@cafe/backend` Worker + Foldkit Website (VITE_API_URL -> Api url)
 packages/
-  backend/                 @cafe/backend: Alchemy stack, Worker, Durable Object
-    alchemy.run.ts         stack: Api Worker + Foldkit Website (VITE_API_URL -> Api url)
+  backend/                 @cafe/backend: Worker (`.` export) and Durable Object
     src/
       api.ts               ChatApi, the `@cafe/backend/api` export (schema only, browser-safe)
       chat.ts              ChatGroup schema
@@ -25,7 +25,7 @@ Rule: `api.ts` and everything it imports stay schema-only. Implementations live 
 
 ```sh
 pnpm install
-pnpm --filter @cafe/backend exec alchemy profile edit --add Cloudflare   # first time only
+pnpm exec alchemy profile edit --add Cloudflare   # first time only
 pnpm dev        # alchemy dev: Worker in workerd + Vite dev server for the frontend
 pnpm deploy     # alchemy deploy
 pnpm typecheck  # tsc --build across all packages
