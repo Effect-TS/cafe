@@ -19,6 +19,9 @@ Keep changes small and PRs short-lived. Use worktrees to run several changes in 
 ```
 alchemy.run.ts         the app stack: @cafe/backend Worker + Foldkit Website
 stacks/github.ts       CI infra (secrets, demos bucket)
+.agents/skills/        agent skills (foldkit, generate-program, audit-program), symlinked into .claude/skills
+references/repos/      gitignored source checkouts to explore, e.g. Foldkit at its pinned release (see the foldkit skill)
+flake.nix              dev shell: Node, pnpm, cloudflared, Bun, ffmpeg
 packages/
   api/                 @cafe/api: schemas only (HttpApi + RpcGroups); imported by the browser, so only `effect`
   backend/             @cafe/backend: the Worker and Durable Objects implementing @cafe/api
@@ -96,6 +99,7 @@ test(
 ## The loop
 
 ```sh
+nix develop                        # optional: Node, pnpm, cloudflared, Bun, ffmpeg
 pnpm install
 pnpm --filter @cafe/frontend exec playwright install chromium   # once
 

@@ -18,6 +18,8 @@ The details are in [AGENTS.md](AGENTS.md).
 
 ```
 AGENTS.md                  how we build: TDD with Alchemy-deployed tests, demos, parallel worktrees
+flake.nix                  dev shell: Node, pnpm, cloudflared, Bun, ffmpeg (`nix develop`)
+.agents/skills/            Foldkit agent skills, symlinked into .claude/skills
 alchemy.run.ts             stack: `@cafe/backend` Worker + Foldkit Website (VITE_API_URL -> Api url), PR preview comment in CI
 stacks/
   github.ts                stack: CI infra: Cloudflare credentials as Actions secrets, public R2 bucket for demos
@@ -68,6 +70,7 @@ packages/
 `@cafe/api` may only import `effect` and its own files; `pnpm lint` enforces this (`packages/api/.oxlintrc.json`).
 
 ```sh
+nix develop     # optional: Node, pnpm, cloudflared, Bun and ffmpeg from flake.nix
 pnpm install
 pnpm exec alchemy profile edit --add Cloudflare   # first time only
 pnpm dev        # alchemy dev: Worker in workerd + Vite dev server for the frontend
