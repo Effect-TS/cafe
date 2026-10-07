@@ -7,8 +7,9 @@ import { HttpServerRequest } from "effect/http/HttpServerRequest";
 import * as HttpServerResponse from "effect/http/HttpServerResponse";
 import * as HttpApiBuilder from "effect/http-api/HttpApiBuilder";
 import { Api } from "@cafe/api";
-import { ChatLive } from "./chat/group.ts";
-import Room from "./chat/room.ts";
+import { Room as RoomSchema } from "@cafe/api/room";
+import { ChatLive } from "./chat/index.ts";
+import Room from "./room/index.ts";
 
 export default Cloudflare.Worker(
   "Api",
@@ -32,20 +33,29 @@ export default Cloudflare.Worker(
     return {
       fetch: Effect.gen(function* () {
         const request = yield* HttpServerRequest;
-        if (request.url === "/health") {
+        const path = new URL(request.url, "http://worker").pathname;
+
+        if (path === "/health") {
           // For tests: OK once the Worker can reach a new Room instance.
-          return yield* rooms
-            .getByName(`health-${crypto.randomUUID()}`)
-            .ping()
-            .pipe(
-              Effect.as(HttpServerResponse.text("ok")),
-              Effect.orElseSucceed(() =>
-                HttpServerResponse.text("unavailable", { status: 503 }),
-              ),
-            );
+          return yield* rooms.getByName(`health-${crypto.randomUUID()}`).pipe(
+            Effect.flatMap((room) => room.ping()),
+            Effect.scoped,
+            Effect.as(HttpServerResponse.text("ok")),
+            Effect.orElseSucceed(() =>
+              HttpServerResponse.text("unavailable", { status: 503 }),
+            ),
+          );
         }
+
+        // The chat's Room serves its RPCs over this WebSocket. Forwarded
+        // before the HttpApi, so no HTTP middleware (CORS) touches the 101.
+        const key = RoomSchema.path.exec(path)?.[1];
+        if (key) {
+          return yield* rooms.fetch(decodeURIComponent(key), request);
+        }
+
         return yield* api;
       }),
     };
-  }).pipe(Effect.provide(Cloudflare.Workers.AIBinding)),
+  }),
 );

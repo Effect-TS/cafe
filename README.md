@@ -12,25 +12,37 @@ stacks/
   github.ts                stack: CI infra: Cloudflare credentials as Actions secrets, public R2 bucket for demos
 .github/workflows/ci.yml   check → live tests → deploy, one stage per PR, cleanup on close
 packages/
-  api/                     @cafe/api: HTTP API schema, safe to import from the browser
+  api/                     @cafe/api: HTTP API + RPC schemas, safe to import from the browser
     src/
       api.ts               Api (the `.` export)
-      chat/                `@cafe/api/chat/*`
-        group.ts             Chat group
+      chat/                `@cafe/api/chat`
+        index.ts             Chat: the HttpApi group
         send-prompt.ts       POST /chats/:key/prompts
-        events.ts            GET  /chats/:key/events (WebSocket)
         message.ts           ChatMessage
-        event.ts             ChatEvent (WebSocket frames)
+        event.ts             ChatEvent
+      room/                `@cafe/api/room`
+        index.ts             Room: the RpcGroup, reached over a WebSocket at /chats/:key/room
+        events.ts            events: history, then live ChatEvents (a stream)
+        send-prompt.ts       sendPrompt
+        ping.ts              ping
+        connect.ts           connect: a Room client over its WebSocket
   backend/                 @cafe/backend: Worker (the `.` export) implementing @cafe/api
     src/
-      worker.ts            Worker: serves Api with ChatLive
-    test/
-      api.test.ts          deploys the Worker with Test.make and drives the API (HTTP + WebSocket)
+      worker.ts            Worker: forwards /chats/:key/room to the Room, serves Api with ChatLive
       chat/
-        group.ts             ChatLive: Layer implementing the Chat group
-        send-prompt.ts       sendPrompt handler (binds Room)
-        events.ts            events handler (binds Room)
-        room.ts              Durable Object: one per chat key, fans events out to sockets
+        index.ts             ChatLive: Layer implementing the Chat group
+        send-prompt.ts       sendPrompt handler (forwards to the Room)
+      room/
+        index.ts             Room: RpcDurableObject implementing @cafe/api/room, one per chat key
+        events.ts            events handler
+        send-prompt.ts       sendPrompt handler
+        ping.ts              ping handler
+        history.ts           History: the chat's messages in storage
+        broadcast.ts         Broadcast: live events to every open stream
+        post.ts              Post: append to History and broadcast
+        reply.ts             Reply: stream the Workers AI reply
+    test/
+      api.test.ts          deploys the Worker with Test.make and drives the API (HTTP + RPC)
   demos/                   @cafe/demos: the README demo, recorded with tcut (terminal + browser pane)
   frontend/                @cafe/frontend: Foldkit SPA, builds its client from @cafe/api
     src/

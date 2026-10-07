@@ -4,7 +4,10 @@
   "type": "module",
   "exports": {
     ".": "./src/api.ts",
-    "./chat/*": "./src/chat/*.ts"
+    "./chat": "./src/chat/index.ts",
+    "./chat/*": "./src/chat/*.ts",
+    "./room": "./src/room/index.ts",
+    "./room/*": "./src/room/*.ts"
   },
   "scripts": {
     "lint": "oxlint src"

@@ -10,6 +10,7 @@ import {
   String,
 } from 'effect'
 import { HttpApiClient } from 'effect/http-api'
+import { Socket } from 'effect/socket'
 import {
   Command,
   Http,
@@ -26,17 +27,18 @@ import { modifyFields } from 'foldkit/struct'
 import { Button, Input } from '@foldkit/ui'
 
 import { Api } from '@cafe/api'
-import { ChatEvent, ChatEventJson } from '@cafe/api/chat/event'
+import { ChatEvent } from '@cafe/api/chat/event'
 import { ChatMessage } from '@cafe/api/chat/message'
+import { type RoomClient, connect } from '@cafe/api/room/connect'
 
 const API_URL = import.meta.env.VITE_API_URL
-const apiUrls = HttpApiClient.urlBuilder(Api, { baseUrl: API_URL })
 const CONNECTION_TIMEOUT_MS = 5000
 
 // MODEL
 
-const ChatSocket = ManagedResource.tag<WebSocket>()('ChatSocket')
-type ChatSocketService = ManagedResource.ServiceOf<typeof ChatSocket>
+const ChatConnection =
+  ManagedResource.tag<RoomClient>()('ChatConnection')
+type ChatConnectionService = ManagedResource.ServiceOf<typeof ChatConnection>
 
 export const ConnectionState = defineTaggedUnion({
   Disconnected: {},
@@ -89,7 +91,7 @@ export type Message = typeof Message.Type
 
 // UPDATE
 
-type UpdateReturn = Update.Return<Model, Message, ChatSocketService>
+type UpdateReturn = Update.Return<Model, Message, ChatConnectionService>
 
 export const update = (model: Model, message: Message) =>
   Message.match<UpdateReturn>(message, {
@@ -247,49 +249,28 @@ export const SendPrompt = Command.define('SendPrompt', {
 
 export const managedResources = ManagedResource.make<Model, Message>()(
   entry => ({
-    chatSocket: entry(Schema.Option(Schema.String), {
-      resource: ChatSocket,
+    chatConnection: entry(Schema.Option(Schema.String), {
+      resource: ChatConnection,
       modelToMaybeRequirements: model =>
         Match.value(model.connection).pipe(
           Match.tag('Connecting', ({ chatKey }) => Option.some(chatKey)),
           Match.tag('Connected', ({ chatKey }) => Option.some(chatKey)),
           Match.orElse(() => Option.none()),
         ),
+      // The client's socket closes with the acquire Scope. A ping confirms
+      // the Room is reachable before the chat counts as connected.
       acquire: chatKey =>
-        Effect.callback<WebSocket, Error>(resume => {
-          const ws = new WebSocket(
-            String.replace(/^http/, 'ws')(
-              apiUrls.Chat.events({ params: { key: chatKey } }),
-            ),
-          )
-
-          const handleOpen = () => {
-            ws.removeEventListener('error', handleError)
-            resume(Effect.succeed(ws))
-          }
-
-          const handleError = () => {
-            ws.removeEventListener('open', handleOpen)
-            resume(Effect.fail(new Error('Failed to connect to WebSocket')))
-          }
-
-          ws.addEventListener('open', handleOpen)
-          ws.addEventListener('error', handleError)
-
-          return Effect.sync(() => {
-            ws.removeEventListener('open', handleOpen)
-            ws.removeEventListener('error', handleError)
-          })
-        }).pipe(
+        connect(API_URL, chatKey).pipe(
+          Effect.provide(Socket.layerWebSocketConstructorGlobal),
+          Effect.tap(client => client.ping()),
           Effect.timeout(Duration.millis(CONNECTION_TIMEOUT_MS)),
-          Effect.catchTag('TimeoutError', () =>
-            Effect.fail(new Error('Connection timeout')),
+          Effect.mapError(error =>
+            error._tag === 'TimeoutError'
+              ? new Error('Connection timeout')
+              : new Error('Failed to connect to the chat'),
           ),
         ),
-      release: socket =>
-        Effect.sync(() => {
-          socket.close()
-        }),
+      release: () => Effect.void,
       onAcquired: () => Message.Connected(),
       onReleased: () => Message.Disconnected(),
       onAcquireError: error =>
@@ -302,41 +283,20 @@ export const managedResources = ManagedResource.make<Model, Message>()(
 
 // SUBSCRIPTION
 
-const decodeChatEvent = Schema.decodeUnknownOption(ChatEventJson)
-
-const streamChatEvents = (socket: WebSocket) =>
-  Subscription.fromEventFilterMap({
-    target: socket,
-    type: 'message',
-    filterMapEvent: event =>
-      Option.map(decodeChatEvent(event.data), chatEvent =>
-        Message.ReceivedChatEvent({ event: chatEvent }),
-      ),
-  }).pipe(
-    Stream.merge(
-      Subscription.fromEvent({
-        target: socket,
-        type: 'close',
-        mapEvent: () => Message.Disconnected(),
-      }),
-    ),
-    Stream.merge(
-      Subscription.fromEvent({
-        target: socket,
-        type: 'error',
-        mapEvent: () => Message.FailedConnect({ error: 'Connection error' }),
-      }),
-    ),
-    Stream.takeUntil(
-      message =>
-        message._tag === 'Disconnected' || message._tag === 'FailedConnect',
+/** The Room's events until the stream ends (Disconnected) or fails. */
+const streamChatEvents = (client: RoomClient) =>
+  client.events().pipe(
+    Stream.map(event => Message.ReceivedChatEvent({ event })),
+    Stream.concat(Stream.make(Message.Disconnected())),
+    Stream.catch(() =>
+      Stream.make(Message.FailedConnect({ error: 'Connection error' })),
     ),
   )
 
 export const subscriptions = Subscription.make<
   Model,
   Message,
-  ChatSocketService
+  ChatConnectionService
 >()(entry => ({
   chatEvents: entry(
     { isConnected: Schema.Boolean },
@@ -347,7 +307,7 @@ export const subscriptions = Subscription.make<
       dependenciesToStream: ({ isConnected }) =>
         Stream.when(
           Stream.unwrap(
-            ChatSocket.get.pipe(
+            ChatConnection.get.pipe(
               Effect.map(streamChatEvents),
               Effect.catchTag('ResourceNotAvailable', () =>
                 Effect.succeed(Stream.empty),
