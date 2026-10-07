@@ -7,6 +7,8 @@ import * as Alchemy from 'alchemy'
 import * as Cloudflare from 'alchemy/Cloudflare'
 import * as Test from 'alchemy/Test/Vitest'
 import * as Effect from 'effect/Effect'
+import * as HttpBody from 'effect/http/HttpBody'
+import * as HttpClientRequest from 'effect/http/HttpClientRequest'
 import * as HttpApiClient from 'effect/http-api/HttpApiClient'
 import { type Browser, type Page, chromium } from 'playwright'
 
@@ -33,14 +35,19 @@ const { test, beforeAll, afterAll, deploy, destroy } = Test.make({
   state: Cloudflare.state(),
 })
 
-// NOTE: newly created Workers' workers.dev URLs answer 404 for a few seconds
-// after deploy (every new stage, e.g. each PR in CI). Wait until both route;
-// a plain GET to the API's events endpoint answers 426, which is accepted.
+// NOTE: right after new Workers are created (every new stage, e.g. each PR in
+// CI), their workers.dev URLs answer 404 and calls into the Room Durable
+// Object answer 500 for several seconds. Wait until the site loads and a
+// prompt round-trips through the API.
 const stack = beforeAll(
   Effect.gen(function* () {
     const outputs = yield* deploy(Stack)
     yield* Test.getWhenReady(outputs.url)
-    yield* Test.getWhenReady(`${outputs.apiUrl}/chats/ready/events`)
+    yield* Test.executeWhenReady(
+      HttpClientRequest.post(`${outputs.apiUrl}/chats/ready/prompts`, {
+        body: HttpBody.jsonUnsafe({ text: 'ready' }),
+      }),
+    )
     return outputs
   }),
 )

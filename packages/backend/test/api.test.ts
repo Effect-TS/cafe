@@ -31,13 +31,17 @@ const { test, beforeAll, afterAll, deploy, destroy } = Test.make({
   state: Cloudflare.state(),
 });
 
-// NOTE: a newly created Worker's workers.dev URL answers 404 for a few seconds
-// after deploy (every new stage, e.g. each PR in CI). Wait until it routes: a
-// plain GET to the events endpoint answers 426, which `getWhenReady` accepts.
+// NOTE: right after a new Worker is created (every new stage, e.g. each PR in
+// CI), its workers.dev URL answers 404 and calls into the Room Durable Object
+// answer 500 for several seconds. Wait until a prompt round-trips through both.
 const stack = beforeAll(
   Effect.gen(function* () {
     const outputs = yield* deploy(Stack);
-    yield* Test.getWhenReady(`${outputs.url}/chats/ready/events`);
+    yield* Test.executeWhenReady(
+      HttpClientRequest.post(`${outputs.url}/chats/ready/prompts`, {
+        body: HttpBody.jsonUnsafe({ text: "ready" }),
+      }),
+    );
     return outputs;
   }),
 );
