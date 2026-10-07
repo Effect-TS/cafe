@@ -99,15 +99,16 @@ jobs:
   demo:
     # Records the demo against this commit and uploads it to the public demos
     # bucket (stacks/github.ts): PRs get a demo comment linking it and the
-    # preview, and main's is the one in the README.
-    needs: deploy
+    # preview, and main's is the one in the README. It deploys its own stages,
+    # so it runs alongside test and deploy rather than after them.
+    needs: check
     # tcut's browser pane records through WebKit, which macOS has built in.
     runs-on: macos-latest
     timeout-minutes: 30
     permissions:
       contents: read
-      issues: write
-      pull-requests: write
+    outputs:
+      url: ${{ steps.upload.outputs.url }}
     env:
       CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
       CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
@@ -135,18 +136,40 @@ jobs:
       - name: Record demo
         run: pnpm demo
       - name: Upload demo
+        id: upload
         run: |
           prefix=${{ github.event_name == 'pull_request' && format('pr-{0}/{1}', github.event.number, github.event.pull_request.head.sha) || 'main' }}
           bun packages/demos/upload.ts "$prefix"
-          echo "DEMO_URL=$DEMO_BASE_URL/$prefix" >> "$GITHUB_ENV"
+          echo "url=$DEMO_BASE_URL/$prefix" >> "$GITHUB_OUTPUT"
         env:
           DEMO_BUCKET: ${{ vars.DEMO_BUCKET }}
           DEMO_BASE_URL: ${{ vars.DEMO_BASE_URL }}
+
+  demo-comment:
+    # Links the demo and the preview, so it waits for both.
+    if: github.event_name == 'pull_request'
+    needs: [deploy, demo]
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      issues: write
+      pull-requests: write
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: pnpm
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: 1.4.2
+      - run: pnpm install --frozen-lockfile
       - name: Comment the demo on the PR
-        if: github.event_name == 'pull_request'
         run: bun packages/demos/comment.ts
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           PULL_REQUEST: ${{ github.event.number }}
+          DEMO_URL: ${{ needs.demo.outputs.url }}
           APP_URL: ${{ needs.deploy.outputs.url }}
           DEMO_SHA: ${{ github.event.pull_request.head.sha }}
