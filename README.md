@@ -13,9 +13,9 @@ packages/
       events.ts            GET  /chats/:key/events WebSocket endpoint schema
       chat-message.ts      ChatMessage schema
       chat-event.ts        ChatEvent schema (WebSocket frames)
-      chat.live.ts         Layer implementing ChatGroup from the handler layers
-      send-prompt.live.ts  sendPrompt handler layer (binds Room)
-      events.live.ts       events handler layer (binds Room)
+      chat.live.ts         Layer implementing ChatGroup from the handlers
+      send-prompt.live.ts  sendPrompt handler (binds Room)
+      events.live.ts       events handler (binds Room)
       room.ts              Durable Object: one per chat key, fans events out to sockets
       worker.ts            Worker: wires ChatApi + ChatLive into a fetch handler
   frontend/                @cafe/frontend: Foldkit SPA, uses `@cafe/backend/api` for its client
