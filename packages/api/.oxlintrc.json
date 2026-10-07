@@ -1,0 +1,16 @@
+{
+  "$schema": "./node_modules/oxlint/configuration_schema.json",
+  "rules": {
+    "no-restricted-imports": [
+      "error",
+      {
+        "patterns": [
+          {
+            "group": ["*", "!effect", "!effect/**", "!./**", "!../**"],
+            "message": "@cafe/api is imported by the browser: only `effect` and relative imports are allowed."
+          }
+        ]
+      }
+    ]
+  }
+}

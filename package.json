@@ -8,9 +8,11 @@
     "deploy": "alchemy deploy",
     "destroy": "alchemy destroy",
     "typecheck": "tsc --build",
-    "test": "pnpm --recursive test"
+    "test": "pnpm --recursive test",
+    "lint": "pnpm --recursive lint"
   },
   "dependencies": {
+    "@cafe/api": "workspace:*",
     "@alchemy.run/frontend-frameworks": "catalog:",
     "@cafe/backend": "workspace:*",
     "@cafe/frontend": "workspace:*",

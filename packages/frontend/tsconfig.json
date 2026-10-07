@@ -1,10 +1,21 @@
 {
   "extends": "../../tsconfig.base.json",
   "compilerOptions": {
-    "lib": ["ES2022", "DOM"],
+    "lib": [
+      "ES2022",
+      "DOM"
+    ],
     "outDir": ".tsc",
     "rootDir": "."
   },
-  "include": ["src/**/*.ts", "vite.config.ts", "vitest.config.ts"],
-  "references": [{ "path": "../backend" }]
+  "include": [
+    "src/**/*.ts",
+    "vite.config.ts",
+    "vitest.config.ts"
+  ],
+  "references": [
+    {
+      "path": "../api"
+    }
+  ]
 }

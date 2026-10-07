@@ -26,12 +26,9 @@ import { modifyFields } from 'foldkit/struct'
 
 import { Button, Input } from '@foldkit/ui'
 
-import {
-  Api,
-  ChatEvent,
-  ChatEventJson,
-  ChatMessage,
-} from '@cafe/backend/api'
+import { Api } from '@cafe/api'
+import { ChatEvent, ChatEventJson } from '@cafe/api/chat/event'
+import { ChatMessage } from '@cafe/api/chat/message'
 
 const API_URL = import.meta.env.VITE_API_URL
 const apiUrls = HttpApiClient.urlBuilder(Api, { baseUrl: API_URL })

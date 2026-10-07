@@ -3,10 +3,10 @@
   "private": true,
   "type": "module",
   "exports": {
-    ".": "./src/worker.ts",
-    "./api": "./src/api.ts"
+    ".": "./src/worker.ts"
   },
   "dependencies": {
+    "@cafe/api": "workspace:*",
     "@effect/platform-bun": "catalog:",
     "@effect/platform-node": "catalog:",
     "alchemy": "catalog:",

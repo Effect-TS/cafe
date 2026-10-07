@@ -235,6 +235,9 @@ importers:
       '@alchemy.run/frontend-frameworks':
         specifier: 'catalog:'
         version: 2.0.0-beta.80(@effect/platform-bun@4.0.0(effect@4.0.0))(@effect/platform-node@4.0.0(effect@4.0.0)(redis@6.3.0))(@types/node@25.9.9)(effect@4.0.0)(hono@4.11.4)(typescript@7.0.2)(vite@8.3.2(@types/node@25.9.9)(esbuild@0.28.2)(jiti@2.7.0)(yaml@2.9.1))
+      '@cafe/api':
+        specifier: workspace:*
+        version: link:packages/api
       '@cafe/backend':
         specifier: workspace:*
         version: link:packages/backend
@@ -264,8 +267,21 @@ importers:
         specifier: 'catalog:'
         version: 8.3.2(@types/node@25.9.9)(esbuild@0.28.2)(jiti@2.7.0)(yaml@2.9.1)
 
+  packages/api:
+    dependencies:
+      effect:
+        specifier: 'catalog:'
+        version: 4.0.0
+    devDependencies:
+      oxlint:
+        specifier: 'catalog:'
+        version: 1.86.0
+
   packages/backend:
     dependencies:
+      '@cafe/api':
+        specifier: workspace:*
+        version: link:../api
       '@effect/platform-bun':
         specifier: 'catalog:'
         version: 4.0.0(effect@4.0.0)
@@ -285,9 +301,9 @@ importers:
 
   packages/frontend:
     dependencies:
-      '@cafe/backend':
+      '@cafe/api':
         specifier: workspace:*
-        version: link:../backend
+        version: link:../api
       '@effect/platform-browser':
         specifier: 'catalog:'
         version: 4.0.0(effect@4.0.0)

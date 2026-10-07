@@ -1,7 +1,19 @@
-import * as Schema from "effect/Schema";
-import * as HttpApiEndpoint from "effect/http-api/HttpApiEndpoint";
+import * as Effect from "effect/Effect";
+import * as HttpServerResponse from "effect/http/HttpServerResponse";
+import type * as HttpApiEndpoint from "effect/http-api/HttpApiEndpoint";
+import type { Events } from "@cafe/api/chat/events";
+import Room from "./room.ts";
 
-/** Upgrade to a WebSocket that streams `ChatEvent` frames for `key`. */
-export const Events = HttpApiEndpoint.get("events", "/chats/:key/events", {
-  params: Schema.Struct({ key: Schema.String }),
+export const EventsHandler = Effect.gen(function* () {
+  const rooms = yield* Room;
+
+  return ({ params, request }: HttpApiEndpoint.Request<typeof Events>) =>
+    Effect.gen(function* () {
+      if (request.headers.upgrade !== "websocket") {
+        return HttpServerResponse.text("Expected Upgrade: websocket", {
+          status: 426,
+        });
+      }
+      return yield* rooms.getByName(params.key).fetch(request);
+    }).pipe(Effect.orDie);
 });

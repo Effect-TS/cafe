@@ -5,24 +5,27 @@ A minimal chat app built with Alchemy, Foldkit, and Effect HTTP, deployed to Clo
 ```
 alchemy.run.ts             stack: `@cafe/backend` Worker + Foldkit Website (VITE_API_URL -> Api url)
 packages/
-  backend/                 @cafe/backend: Worker (`.` export) and Durable Object
+  api/                     @cafe/api: HTTP API schema, safe to import from the browser
     src/
-      api.ts               Api, the `@cafe/backend/api` export (schema only, browser-safe)
-      worker.ts            Worker: wires Api + ChatLive into a fetch handler
+      api.ts               Api (the `.` export)
+      chat/                `@cafe/api/chat/*`
+        group.ts             Chat group
+        send-prompt.ts       POST /chats/:key/prompts
+        events.ts            GET  /chats/:key/events (WebSocket)
+        message.ts           ChatMessage
+        event.ts             ChatEvent (WebSocket frames)
+  backend/                 @cafe/backend: Worker (the `.` export) implementing @cafe/api
+    src/
+      worker.ts            Worker: serves Api with ChatLive
       chat/
-        group.ts             Chat group schema
-        send-prompt.ts       POST /chats/:key/prompts endpoint schema
-        events.ts            GET  /chats/:key/events WebSocket endpoint schema
-        message.ts           ChatMessage schema
-        event.ts             ChatEvent schema (WebSocket frames)
-        group.live.ts        Layer implementing Chat from the handlers
-        send-prompt.live.ts  sendPrompt handler (binds Room)
-        events.live.ts       events handler (binds Room)
+        group.ts             ChatLive: Layer implementing the Chat group
+        send-prompt.ts       sendPrompt handler (binds Room)
+        events.ts            events handler (binds Room)
         room.ts              Durable Object: one per chat key, fans events out to sockets
-  frontend/                @cafe/frontend: Foldkit SPA, uses `@cafe/backend/api` for its client
+  frontend/                @cafe/frontend: Foldkit SPA, builds its client from @cafe/api
 ```
 
-Rule: `api.ts` and everything it imports stay schema-only. Implementations live in `*.live.ts`, which only `worker.ts` pulls in.
+`@cafe/api` may only import `effect` and its own files; `pnpm lint` enforces this (`packages/api/.oxlintrc.json`).
 
 ```sh
 pnpm install
@@ -31,4 +34,5 @@ pnpm dev        # alchemy dev: Worker in workerd + Vite dev server for the front
 pnpm deploy     # alchemy deploy
 pnpm typecheck  # tsc --build across all packages
 pnpm test
+pnpm lint
 ```

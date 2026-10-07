@@ -4,8 +4,8 @@ import * as Effect from "effect/Effect";
 import * as Layer from "effect/Layer";
 import * as HttpRouter from "effect/http/HttpRouter";
 import * as HttpApiBuilder from "effect/http-api/HttpApiBuilder";
-import { Api } from "./api.ts";
-import { ChatLive } from "./chat/group.live.ts";
+import { Api } from "@cafe/api";
+import { ChatLive } from "./chat/group.ts";
 
 export default Cloudflare.Worker(
   "Api",
@@ -23,5 +23,4 @@ export default Cloudflare.Worker(
       ),
     ),
   ).pipe(Effect.map((fetch) => ({ fetch })))
-  
 );

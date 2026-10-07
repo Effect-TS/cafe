@@ -1,7 +1,13 @@
-import * as HttpApiGroup from "effect/http-api/HttpApiGroup";
-import { Events } from "./events.ts";
-import { SendPrompt } from "./send-prompt.ts";
+import * as Effect from "effect/Effect";
+import * as HttpApiBuilder from "effect/http-api/HttpApiBuilder";
+import { Api } from "@cafe/api";
+import { EventsHandler } from "./events.ts";
+import { SendPromptHandler } from "./send-prompt.ts";
 
-export class Chat extends HttpApiGroup.make("Chat")
-  .add(SendPrompt)
-  .add(Events) {}
+export const ChatLive = HttpApiBuilder.group(Api, "Chat", (handlers) =>
+  Effect.gen(function* () {
+    return handlers
+      .handle("sendPrompt", yield* SendPromptHandler)
+      .handle("events", yield* EventsHandler);
+  }),
+);
