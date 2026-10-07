@@ -2,18 +2,9 @@ import * as Alchemy from "alchemy";
 import * as Cloudflare from "alchemy/Cloudflare";
 import * as GitHub from "alchemy/GitHub";
 import * as Output from "alchemy/Output";
-import * as Config from "effect/Config";
 import * as Effect from "effect/Effect";
 import * as Layer from "effect/Layer";
-import * as Option from "effect/Option";
 import Api from "@cafe/backend";
-
-/**
- * The demo CI recorded for this commit: `DEMO_URL` is its folder in the
- * public demos bucket (stacks/github.ts), e.g. https://pub-….r2.dev/pr-12/abc1234.
- * GitHub only plays videos uploaded to GitHub inline, so this is a link.
- */
-const demoLink = (demoUrl: string) => `**Demo:** ${demoUrl}/demo.mp4`;
 
 export default Alchemy.Stack(
   "Cafe",
@@ -32,7 +23,6 @@ export default Alchemy.Stack(
     });
 
     const github = yield* GitHub.GitHubEnv;
-    const demoUrl = yield* Config.option(Config.String("DEMO_URL"));
     if (github?.pr) {
       yield* GitHub.Comment("PreviewComment", {
         owner: github.owner,
@@ -42,11 +32,6 @@ export default Alchemy.Stack(
           ## Preview deployed
 
           **App:** ${web.url}
-
-          ${Option.match(demoUrl, {
-            onNone: () => "_Recording a demo of this commit…_",
-            onSome: demoLink,
-          })}
 
           Built from commit ${github.sha.slice(0, 7)}.
 

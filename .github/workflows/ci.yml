@@ -8,7 +8,8 @@ on:
 
 concurrency:
   group: ci-${{ github.ref }}
-  cancel-in-progress: false
+  # A new push to a PR supersedes its in-progress run; main runs in order.
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 env:
   # pr-<number> for pull requests, prod for main, otherwise the branch name.
@@ -68,6 +69,8 @@ jobs:
   deploy:
     needs: test
     runs-on: ubuntu-latest
+    outputs:
+      url: ${{ steps.deploy.outputs.url }}
     permissions:
       contents: read
       pull-requests: write
@@ -87,18 +90,22 @@ jobs:
       - name: Check credentials
         run: pnpm exec alchemy provider check-env --provider Cloudflare --provider GitHub
       - name: Deploy
-        run: pnpm exec alchemy deploy --stage ${{ env.STAGE }} --yes
+        id: deploy
+        run: |
+          pnpm exec alchemy deploy --stage ${{ env.STAGE }} --yes | tee deploy.log
+          echo "url=$(grep -oE "  url: '[^']+'" deploy.log | tail -1 | cut -d"'" -f2)" >> "$GITHUB_OUTPUT"
 
   demo:
     # Records the demo against this commit and uploads it to the public demos
-    # bucket (stacks/github.ts): PRs embed theirs in the preview comment, and
-    # main's is the one in the README.
+    # bucket (stacks/github.ts): PRs get a demo comment linking it and the
+    # preview, and main's is the one in the README.
     needs: deploy
     # tcut's browser pane records through WebKit, which macOS has built in.
     runs-on: macos-latest
     timeout-minutes: 30
     permissions:
       contents: read
+      issues: write
       pull-requests: write
     env:
       CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
@@ -134,12 +141,14 @@ jobs:
         env:
           DEMO_BUCKET: ${{ vars.DEMO_BUCKET }}
           DEMO_BASE_URL: ${{ vars.DEMO_BASE_URL }}
-      - name: Embed demo in the preview comment
+      - name: Comment the demo on the PR
         if: github.event_name == 'pull_request'
-        run: pnpm exec alchemy deploy --stage ${{ env.STAGE }} --yes
+        run: bun packages/demos/comment.ts
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           PULL_REQUEST: ${{ github.event.number }}
+          APP_URL: ${{ needs.deploy.outputs.url }}
+          DEMO_SHA: ${{ github.event.pull_request.head.sha }}
 
   cleanup:
     if: github.event_name == 'pull_request' && github.event.action == 'closed'

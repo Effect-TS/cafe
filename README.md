@@ -4,7 +4,7 @@ A minimal chat app built with Alchemy, Foldkit, and Effect HTTP, deployed to Clo
 
 [![Demo: alchemy deploy, chat in the browser, alchemy dev, pnpm test, ALCHEMY_DEV=1 pnpm test](https://pub-68e74efbba3b4272943c198da363bcab.r2.dev/main/demo.gif)](https://pub-68e74efbba3b4272943c198da363bcab.r2.dev/main/demo.mp4)
 
-<sub>Recorded by CI from `main` with [tcut](https://github.com/AmanVarshney01/tcut) ([`packages/demos/demo.video.ts`](packages/demos/demo.video.ts)) and hosted in R2 (`stacks/github.ts`). Every PR's preview comment links an MP4 demo of that PR. Locally: `pnpm demo`. Click for the MP4.</sub>
+<sub>Recorded by CI from `main` with [tcut](https://github.com/AmanVarshney01/tcut) ([`packages/demos/demo.video.ts`](packages/demos/demo.video.ts)) and hosted in R2 (`stacks/github.ts`). Every PR gets a demo comment with a demo of that PR. Locally: `pnpm demo`. Click for the MP4.</sub>
 
 ```
 alchemy.run.ts             stack: `@cafe/backend` Worker + Foldkit Website (VITE_API_URL -> Api url), PR preview comment in CI
@@ -70,7 +70,7 @@ The e2e tests need Playwright's Chromium: `pnpm --filter @cafe/frontend exec pla
 1. **check**: typecheck, lint, frontend unit tests.
 2. **test**: backend API tests and Playwright e2e tests against real Cloudflare, in stage `test-pr-<number>` (each suite destroys what it deployed).
 3. **deploy**: `alchemy deploy` to stage `pr-<number>` (or `prod` on `main`), with a PR comment linking the preview.
-4. **demo**: records the demo (macOS, tcut) and uploads it to the demos bucket: `pr-<number>/<sha>/` is linked from the preview comment, `main/` is the README demo. PR demos expire after 30 days.
+4. **demo**: records the demo (macOS, tcut) and uploads it to the demos bucket: `pr-<number>/<sha>/` goes into the PR's demo comment, `main/` is the README demo. PR demos expire after 30 days.
 5. **cleanup**: when a PR closes, `alchemy destroy` its `pr-<number>` stage.
 
 CI authenticates with the `CLOUDFLARE_API_TOKEN` and `CLOUDFLARE_ACCOUNT_ID` repository secrets. `stacks/github.ts` writes them from the profile it is deployed with, which must use a Cloudflare API token (requires admin on the repository):
