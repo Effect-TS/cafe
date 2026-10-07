@@ -224,6 +224,9 @@ catalogs:
     tailwindcss:
       specifier: ^4.3.3
       version: 4.3.3
+    termcut:
+      specifier: 1.4.4
+      version: 1.4.4
     typescript:
       specifier: ^7.0.2
       version: 7.0.2
@@ -316,6 +319,12 @@ importers:
       vitest:
         specifier: 'catalog:'
         version: 5.0.3(@types/node@25.9.9)(happy-dom@20.14.5)(vite@8.3.2(@types/node@25.9.9)(esbuild@0.28.2)(jiti@2.7.0)(yaml@2.9.1))
+
+  packages/demos:
+    devDependencies:
+      termcut:
+        specifier: 'catalog:'
+        version: 1.4.4(typescript@7.0.2)
 
   packages/frontend:
     dependencies:
@@ -1975,6 +1984,18 @@ packages:
   '@vitest/spy@5.0.3':
     resolution: {integrity: sha512-XhFysQTB8AZ+P4gMi+Lpo99vg2AZi0qKpaB9yXQl37+CaMEAPO3iH/wGVnSyL5MPERiLezpqTVtrR6UZH5GCXg==}
 
+  '@wterm/core@0.5.4':
+    resolution: {integrity: sha512-yIhbn27ELHDjEDtduDIycHWEEaobJGhqR+WqKgCoSPYReCIrR+skJS67PBk3Wp6+yLImfQ3Fv1CJ4hLXKLa7Fg==}
+
+  '@wterm/dom@0.5.4':
+    resolution: {integrity: sha512-9zxZq52BFpBtVEkBEbZF5a+9dX+eIADQdlTRq6YgGxHP/G/aDXyRja+tebQtAYqx9KY8qJVm20vNOhQxwBe/FQ==}
+
+  '@wterm/ghostty@0.5.4':
+    resolution: {integrity: sha512-W6wlGhHiGf/2tF/uZo8qHtaYqA3Ebf+6VhdPidiWuqEU37Kj+YSkuXCXP/qORSD0roec/5Z16qYRyF5HsC9XJg==}
+
+  '@wterm/markdown@0.5.4':
+    resolution: {integrity: sha512-1Pqp+qszWyMjLj98Mnf7yIJ0UucNUCD+ZC+iWN0sdikdcZ0oJj7VCzJxdb+ODBGB5ivNptKDkH4JMDBuAU3+ow==}
+
   accepts@2.0.0:
     resolution: {integrity: sha512-5cvg6CtKwfgdmVqY1WIiXKc3Q1bkRqGLi+2W/6ao+6Y7gu/RCwRuAhGEzh5B4KlszSuTLgZYuqFqo5bImjNKng==}
     engines: {node: '>= 0.6'}
@@ -2857,6 +2878,13 @@ packages:
   tapable@2.3.3:
     resolution: {integrity: sha512-uxc/zpqFg6x7C8vOE7lh6Lbda8eEL9zmVm/PLeTPBRhh1xCgdWaQ+J1CUieGpIfm2HdtsUpRv+HshiasBMcc6A==}
     engines: {node: '>=6'}
+
+  termcut@1.4.4:
+    resolution: {integrity: sha512-Wkj7x+NflcwA9y4lXOuFLCnxFb8VGo1H3+IWk8+w7LjXcCoUkVUXR+fhfMDiALx6cfk6ZgteA3+evC0Z8Gd3hw==}
+    engines: {bun: '>=1.4.1'}
+    hasBin: true
+    peerDependencies:
+      typescript: ^5 || ^6 || ^7
 
   tinybench@6.2.0:
     resolution: {integrity: sha512-78U2TlB2CnVenajOFzf3BKSm0J6oz5L0NV7g32LCPccvYc0lbWvys4d3uUUCS2B1N8PAf2+aekR8i1KbC3HO7Q==}
@@ -4179,6 +4207,18 @@ snapshots:
 
   '@vitest/spy@5.0.3': {}
 
+  '@wterm/core@0.5.4': {}
+
+  '@wterm/dom@0.5.4':
+    dependencies:
+      '@wterm/core': 0.5.4
+
+  '@wterm/ghostty@0.5.4':
+    dependencies:
+      '@wterm/core': 0.5.4
+
+  '@wterm/markdown@0.5.4': {}
+
   accepts@2.0.0:
     dependencies:
       mime-types: 3.0.2
@@ -5086,6 +5126,14 @@ snapshots:
   tailwindcss@4.3.3: {}
 
   tapable@2.3.3: {}
+
+  termcut@1.4.4(typescript@7.0.2):
+    dependencies:
+      '@wterm/core': 0.5.4
+      '@wterm/dom': 0.5.4
+      '@wterm/ghostty': 0.5.4
+      '@wterm/markdown': 0.5.4
+      typescript: 7.0.2
 
   tinybench@6.2.0: {}
 

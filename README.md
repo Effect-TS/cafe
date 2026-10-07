@@ -2,6 +2,10 @@
 
 A minimal chat app built with Alchemy, Foldkit, and Effect HTTP, deployed to Cloudflare.
 
+[![Demo: alchemy deploy, chat in the browser, alchemy dev, pnpm test, ALCHEMY_DEV=1 pnpm test](packages/demos/out/demo.gif)](packages/demos/out/demo.mp4)
+
+<sub>Recorded with [tcut](https://github.com/AmanVarshney01/tcut) from [`packages/demos/demo.video.ts`](packages/demos/demo.video.ts): `pnpm demo`. Click for the MP4.</sub>
+
 ```
 alchemy.run.ts             stack: `@cafe/backend` Worker + Foldkit Website (VITE_API_URL -> Api url), PR preview comment in CI
 stacks/
@@ -27,6 +31,7 @@ packages/
         send-prompt.ts       sendPrompt handler (binds Room)
         events.ts            events handler (binds Room)
         room.ts              Durable Object: one per chat key, fans events out to sockets
+  demos/                   @cafe/demos: the README demo, recorded with tcut (terminal + browser pane)
   frontend/                @cafe/frontend: Foldkit SPA, builds its client from @cafe/api
     src/
       story.test.ts        Story tests: update, Messages, and Commands (pure)

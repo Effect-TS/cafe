@@ -1,0 +1,11 @@
+{
+  "name": "@cafe/demos",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "record": "bun record.ts"
+  },
+  "devDependencies": {
+    "termcut": "catalog:"
+  }
+}
