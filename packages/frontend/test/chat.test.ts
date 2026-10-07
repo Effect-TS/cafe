@@ -6,9 +6,11 @@ import { expect } from '@effect/vitest'
 import * as Alchemy from 'alchemy'
 import * as Cloudflare from 'alchemy/Cloudflare'
 import * as Test from 'alchemy/Test/Vitest'
+import * as Array from 'effect/Array'
 import * as Effect from 'effect/Effect'
-import * as HttpBody from 'effect/http/HttpBody'
-import * as HttpClientRequest from 'effect/http/HttpClientRequest'
+import * as Schedule from 'effect/Schedule'
+import * as HttpClient from 'effect/http/HttpClient'
+import * as HttpClientResponse from 'effect/http/HttpClientResponse'
 import * as HttpApiClient from 'effect/http-api/HttpApiClient'
 import { type Browser, type Page, chromium } from 'playwright'
 
@@ -35,19 +37,26 @@ const { test, beforeAll, afterAll, deploy, destroy } = Test.make({
   state: Cloudflare.state(),
 })
 
-// NOTE: right after new Workers are created (every new stage, e.g. each PR in
-// CI), their workers.dev URLs answer 404 and calls into the Room Durable
-// Object answer 500 for several seconds. Wait until the site loads and a
-// prompt round-trips through the API.
+// NOTE: for about 20s after new Workers are created (every new stage, e.g.
+// each PR in CI), requests intermittently 404 or fail to reach the Room
+// Durable Object. Wait until the site and the API's /health both pass
+// continuously for 10 seconds.
+const healthy = (url: string) =>
+  Effect.forEach(
+    Array.range(1, 10),
+    () =>
+      HttpClient.get(url).pipe(
+        Effect.flatMap(HttpClientResponse.filterStatusOk),
+        Effect.andThen(Effect.sleep('1 second')),
+      ),
+    { discard: true },
+  ).pipe(Effect.retry({ schedule: Schedule.spaced('1 second'), times: 60 }))
+
 const stack = beforeAll(
   Effect.gen(function* () {
     const outputs = yield* deploy(Stack)
-    yield* Test.getWhenReady(outputs.url)
-    yield* Test.executeWhenReady(
-      HttpClientRequest.post(`${outputs.apiUrl}/chats/ready/prompts`, {
-        body: HttpBody.jsonUnsafe({ text: 'ready' }),
-      }),
-    )
+    yield* healthy(outputs.url)
+    yield* healthy(`${outputs.apiUrl}/health`)
     return outputs
   }),
 )

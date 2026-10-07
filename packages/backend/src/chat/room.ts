@@ -35,6 +35,8 @@ export default class Room extends Cloudflare.DurableObject<Room>()(
         ) {
           yield* socket.close(code, reason);
         }),
+        /** Health check: succeeds once this Durable Object is reachable. */
+        ping: () => Effect.void,
         /** Record an already-encoded frame and broadcast it to every socket. */
         publish: (frame: string) =>
           Effect.gen(function* () {
