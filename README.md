@@ -2,7 +2,7 @@
 
 A minimal chat app built with Alchemy, Foldkit, and Effect HTTP, deployed to Cloudflare.
 
-[![Demo: alchemy deploy, chat in the browser, alchemy dev, pnpm test, ALCHEMY_DEV=1 pnpm test](https://pub-68e74efbba3b4272943c198da363bcab.r2.dev/main/demo.gif)](https://pub-68e74efbba3b4272943c198da363bcab.r2.dev/main/demo.mp4)
+[![Demo: alchemy deploy, chat in the browser, alchemy dev, pnpm test, ALCHEMY_DEV=1 pnpm test](https://pub-68e74efbba3b4272943c198da363bcab.r2.dev/main/demo.gif?v=2)](https://pub-68e74efbba3b4272943c198da363bcab.r2.dev/main/demo.mp4)
 
 <sub>Recorded by CI from `main` with [tcut](https://github.com/AmanVarshney01/tcut) ([`packages/demos/demo.video.ts`](packages/demos/demo.video.ts)) and hosted in R2 (`stacks/github.ts`). Every PR gets a demo comment with a demo of that PR. Locally: `pnpm demo`. Click for the MP4.</sub>
 

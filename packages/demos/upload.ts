@@ -19,6 +19,11 @@ const { accountId, token, bucket } = Effect.runSync(
   }),
 );
 
+// `main/` is replaced on every push to main, so GitHub's image proxy (camo)
+// must revalidate it; per-commit folders never change.
+const cacheControl =
+  prefix === "main" ? "no-cache" : "public, max-age=31536000, immutable";
+
 const files = [
   { name: "demo.gif", type: "image/gif" },
   { name: "demo.mp4", type: "video/mp4" },
@@ -32,6 +37,7 @@ for (const { name, type } of files) {
       headers: {
         Authorization: `Bearer ${Redacted.value(token)}`,
         "Content-Type": type,
+        "Cache-Control": cacheControl,
       },
       body: Bun.file(path.join(import.meta.dir, "out", name)),
     },
