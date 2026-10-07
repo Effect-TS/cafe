@@ -16,7 +16,6 @@ packages/
       chat.live.ts         Layer implementing ChatGroup from the handler layers
       send-prompt.live.ts  sendPrompt handler layer (binds Room)
       events.live.ts       events handler layer (binds Room)
-      http-platform.ts     HttpPlatform layer for Workers
       room.ts              Durable Object: one per chat key, fans events out to sockets
       worker.ts            Worker: wires ChatApi + ChatLive into a fetch handler
   frontend/                @cafe/frontend: Foldkit SPA, uses `@cafe/backend/api` for its client
