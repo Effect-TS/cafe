@@ -38,3 +38,6 @@ report.[0-9]_.[0-9]_.[0-9]_.[0-9]_.json
 
 # tsc --build output
 .tsc
+
+# fetched reference source (see .agents/skills/foldkit)
+references
