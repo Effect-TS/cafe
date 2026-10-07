@@ -90,10 +90,10 @@ jobs:
         run: pnpm exec alchemy deploy --stage ${{ env.STAGE }} --yes
 
   demo:
-    # Records the README demo against this PR's code, then republishes the
-    # preview so its site serves the demo and the preview comment embeds it.
+    # Records the demo against this commit and uploads it to the public demos
+    # bucket (stacks/github.ts): PRs embed theirs in the preview comment, and
+    # main's is the one in the README.
     needs: deploy
-    if: github.event_name == 'pull_request'
     # tcut's browser pane records through WebKit, which macOS has built in.
     runs-on: macos-latest
     timeout-minutes: 30
@@ -126,21 +126,20 @@ jobs:
           echo "ALCHEMY_TEST_STAGE=test-demo-$STAGE" >> "$GITHUB_ENV"
       - name: Record demo
         run: pnpm demo
-      - name: Publish demo with the preview
+      - name: Upload demo
         run: |
-          mkdir -p packages/frontend/public/demo
-          cp packages/demos/out/demo.gif packages/demos/out/demo.mp4 packages/frontend/public/demo/
-          pnpm exec alchemy deploy --stage ${{ env.STAGE }} --yes
+          prefix=${{ github.event_name == 'pull_request' && format('pr-{0}/{1}', github.event.number, github.event.pull_request.head.sha) || 'main' }}
+          bun packages/demos/upload.ts "$prefix"
+          echo "DEMO_URL=$DEMO_BASE_URL/$prefix" >> "$GITHUB_ENV"
+        env:
+          DEMO_BUCKET: ${{ vars.DEMO_BUCKET }}
+          DEMO_BASE_URL: ${{ vars.DEMO_BASE_URL }}
+      - name: Embed demo in the preview comment
+        if: github.event_name == 'pull_request'
+        run: pnpm exec alchemy deploy --stage ${{ env.STAGE }} --yes
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           PULL_REQUEST: ${{ github.event.number }}
-          PREVIEW_DEMO: "1"
-      - uses: actions/upload-artifact@v4
-        with:
-          name: demo
-          path: |
-            packages/demos/out/demo.gif
-            packages/demos/out/demo.mp4
 
   cleanup:
     if: github.event_name == 'pull_request' && github.event.action == 'closed'

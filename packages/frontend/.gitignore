@@ -26,6 +26,3 @@ Thumbs.db
 
 # Claude Code worktrees
 .claude/worktrees/
-
-# CI copies the recorded demo here so each preview serves its own (see ci.yml)
-public/demo/

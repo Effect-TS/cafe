@@ -79,8 +79,8 @@ export default defineVideo(
     const apiUrl = deployedApiUrl(t.scrollback());
     // A new workers.dev URL takes a while to start serving; wait off-camera.
     await t.hide(async () => {
-      await whenServing(url);
-      await whenServing(`${apiUrl}/health`);
+      await whenServing(url, 'id="root"');
+      await whenServing(`${apiUrl}/health`, "ok");
     });
 
     // 2. Use the deployed app
@@ -88,7 +88,7 @@ export default defineVideo(
       eyebrow: "Foldkit + WebSocket + Workers AI",
       duration: "2s",
     });
-    await t.browser.goto(url);
+    await openApp(t, url);
     await useChat(t, "coffee", "Write a haiku about coffee.");
 
     // 3. Local development
@@ -102,14 +102,13 @@ export default defineVideo(
     await t.enter();
     await t.wait(/Done:/, { scope: "scrollback", timeout: "3m" });
     const devUrl = localUrl(t.scrollback());
-    await t.browser.goto(devUrl);
+    await openApp(t, devUrl);
     await useChat(t, "local", "Say hello from localhost in one sentence.");
     await t.ctrl("c");
     await t.wait(undefined, { timeout: "60s" });
 
     // The deployed chat keeps its history: rejoin it while the tests run.
-    await t.browser.goto(url);
-    await t.browser.waitFor(/Join chat/);
+    await openApp(t, url);
     await fill(t, "#chat-key", "coffee");
     await submit(t);
 
@@ -192,15 +191,36 @@ const waitUntil = async (t: Video, condition: string, what: string) => {
   throw new Error(`timed out waiting for ${what}`);
 };
 
-/** Resolves once `url` has answered 200 five times in a row. */
-const whenServing = async (url: string) => {
+/**
+ * Resolves once `url` has served a body containing `expected` five times in a
+ * row. A new workers.dev URL can answer with Cloudflare's "There is nothing
+ * here yet" placeholder, so the status code alone is not enough.
+ */
+const whenServing = async (url: string, expected: string) => {
   let streak = 0;
-  for (let attempt = 0; attempt < 120 && streak < 5; attempt++) {
-    const ok = await fetch(url).then((r) => r.ok, () => false);
-    streak = ok ? streak + 1 : 0;
+  for (let attempt = 0; attempt < 180 && streak < 5; attempt++) {
+    const served = await fetch(url).then(
+      async (r) => r.ok && (await r.text()).includes(expected),
+      () => false,
+    );
+    streak = served ? streak + 1 : 0;
     await Bun.sleep(1000);
   }
-  if (streak < 5) throw new Error(`${url} is not serving`);
+  if (streak < 5) throw new Error(`${url} is not serving ${expected}`);
+};
+
+/** Opens the app in the browser pane, reloading until it has rendered. */
+const openApp = async (t: Video, url: string) => {
+  await t.browser.goto(url);
+  for (let attempt = 1; ; attempt++) {
+    try {
+      await t.browser.waitFor(/Join chat|Leave/, { timeout: "10s" });
+      return;
+    } catch (error) {
+      if (attempt >= 6) throw error;
+      await t.browser.reload();
+    }
+  }
 };
 
 const deployedApiUrl = (output: string) => {

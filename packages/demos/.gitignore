@@ -1,6 +1,0 @@
-# The root .gitignore ignores out/; the rendered demo videos are committed.
-!/out/
-
-# tcut intermediates: the recording and browser frames (re-record to regenerate)
-/out/*.cast
-/out/*.browser/
