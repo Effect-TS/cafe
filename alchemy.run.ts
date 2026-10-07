@@ -2,8 +2,10 @@ import * as Alchemy from "alchemy";
 import * as Cloudflare from "alchemy/Cloudflare";
 import * as GitHub from "alchemy/GitHub";
 import * as Output from "alchemy/Output";
+import * as Config from "effect/Config";
 import * as Effect from "effect/Effect";
 import * as Layer from "effect/Layer";
+import * as Option from "effect/Option";
 import Api from "@cafe/backend";
 
 /**
@@ -30,6 +32,7 @@ export default Alchemy.Stack(
     });
 
     const github = yield* GitHub.GitHubEnv;
+    const demoUrl = yield* Config.option(Config.String("DEMO_URL"));
     if (github?.pr) {
       yield* GitHub.Comment("PreviewComment", {
         owner: github.owner,
@@ -40,7 +43,10 @@ export default Alchemy.Stack(
 
           **App:** ${web.url}
 
-          ${process.env.DEMO_URL ? demoEmbed(process.env.DEMO_URL) : "_Recording a demo of this commit…_"}
+          ${Option.match(demoUrl, {
+            onNone: () => "_Recording a demo of this commit…_",
+            onSome: demoEmbed,
+          })}
 
           Built from commit ${github.sha.slice(0, 7)}.
 

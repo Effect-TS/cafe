@@ -6,6 +6,7 @@
     "record": "bun record.ts"
   },
   "devDependencies": {
+    "effect": "catalog:",
     "termcut": "catalog:"
   }
 }

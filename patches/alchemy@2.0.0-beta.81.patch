@@ -1,8 +1,8 @@
 diff --git a/lib/Cloudflare/AI/LanguageModel.js b/lib/Cloudflare/AI/LanguageModel.js
-index f4095841172e3d9334b146352f631c982ff3d0b9..a1a24b0ab72b66e399a2932c7e45451c089ce76b 100644
+index 39faf0323eb97f3babd9832001e306ad9cacd7a3..d126ff7a38d59b2d93cfdaaa1689de606ce80c23 100644
 --- a/lib/Cloudflare/AI/LanguageModel.js
 +++ b/lib/Cloudflare/AI/LanguageModel.js
-@@ -485,6 +485,13 @@ const updateChunkMeta = (state, chunk) => {
+@@ -458,6 +458,13 @@ const updateChunkMeta = (state, chunk) => {
      return s;
  };
  const handleNativeText = (state, chunk, parts, idGen, hasTools) => {
@@ -17,10 +17,10 @@ index f4095841172e3d9334b146352f631c982ff3d0b9..a1a24b0ab72b66e399a2932c7e45451c
      if (native == null || native === "")
          return Effect.succeed(state);
 diff --git a/src/Cloudflare/AI/LanguageModel.ts b/src/Cloudflare/AI/LanguageModel.ts
-index e6d2881bfe589ca02d486800357e8baac97d8a3b..2aff1cc59cbf71a8639c6f7d9d59de7112b20542 100644
+index 46006e9f187e0acbf59fcdc032eca8018a514799..1c9a19d2be6c3e17dce2aa4b394586adb71817b8 100644
 --- a/src/Cloudflare/AI/LanguageModel.ts
 +++ b/src/Cloudflare/AI/LanguageModel.ts
-@@ -793,6 +793,15 @@ const handleNativeText = (
+@@ -722,6 +722,15 @@ const handleNativeText = (
    idGen: IdGenerator.Service,
    hasTools: boolean,
  ): Effect.Effect<StreamState> => {
@@ -35,4 +35,4 @@ index e6d2881bfe589ca02d486800357e8baac97d8a3b..2aff1cc59cbf71a8639c6f7d9d59de71
 +  }
    const native = chunk.response;
    if (native == null || native === "") return Effect.succeed(state);
-   const text =
+   const text = typeof native === "object" ? JSON.stringify(native) : String(native);

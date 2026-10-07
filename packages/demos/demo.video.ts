@@ -1,3 +1,6 @@
+import * as Config from "effect/Config";
+import * as Effect from "effect/Effect";
+import * as Option from "effect/Option";
 import { defineVideo } from "termcut";
 
 // Records the README demo: deploy with Alchemy, use the deployed app in a
@@ -9,19 +12,24 @@ import { defineVideo } from "termcut";
 // `teardown` around the recording. Locally it uses the Alchemy profile
 // $ALCHEMY_PROFILE (default `testing`); in CI the CLOUDFLARE_* env vars.
 
-const ci = process.env.CI === "true";
-const profile = ci ? undefined : (process.env.ALCHEMY_PROFILE ?? "testing");
-const stage = process.env.DEMO_STAGE ?? "demo";
+const config = Effect.runSync(
+  Config.all({
+    ci: Config.Boolean("CI").pipe(Config.withDefault(false)),
+    profile: Config.String("ALCHEMY_PROFILE").pipe(Config.withDefault("testing")),
+    stage: Config.String("DEMO_STAGE").pipe(Config.withDefault("demo")),
+    devStage: Config.option(Config.String("ALCHEMY_STAGE")),
+  }),
+);
+const profile = config.ci ? undefined : config.profile;
+const stage = config.stage;
 
 const destroyStage = async (stageToDestroy: string) => {
   const proc = Bun.spawn(
-    ["pnpm", "exec", "alchemy", "destroy", "--stage", stageToDestroy, "--yes", "--no-input"],
-    {
-      cwd: `${import.meta.dir}/../..`,
-      env: profile ? { ...process.env, ALCHEMY_PROFILE: profile } : process.env,
-      stdout: "inherit",
-      stderr: "inherit",
-    },
+    [
+      "pnpm", "exec", "alchemy", "destroy", "--stage", stageToDestroy, "--yes", "--no-input",
+      ...(profile ? ["--profile", profile] : []),
+    ],
+    { cwd: `${import.meta.dir}/../..`, stdout: "inherit", stderr: "inherit" },
   );
   if ((await proc.exited) !== 0) {
     throw new Error(`alchemy destroy --stage ${stageToDestroy} failed`);
@@ -34,7 +42,9 @@ export const setup = () => destroyStage(stage);
 /** Remove the demo stage, and in CI the run's `alchemy dev` stage ($ALCHEMY_STAGE). */
 export const teardown = async () => {
   await destroyStage(stage);
-  if (ci && process.env.ALCHEMY_STAGE) await destroyStage(process.env.ALCHEMY_STAGE);
+  if (config.ci && Option.isSome(config.devStage)) {
+    await destroyStage(config.devStage.value);
+  }
 };
 
 export default defineVideo(

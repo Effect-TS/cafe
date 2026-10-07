@@ -2,21 +2,22 @@
 //
 //   bun upload.ts <prefix>      e.g. pr-12/abc1234 or main
 //
-// Needs CLOUDFLARE_ACCOUNT_ID, CLOUDFLARE_API_TOKEN and DEMO_BUCKET, and prints
-// the public base URL of the upload when DEMO_BASE_URL is set.
+// Needs CLOUDFLARE_ACCOUNT_ID, CLOUDFLARE_API_TOKEN and DEMO_BUCKET.
 import path from "node:path";
+import * as Config from "effect/Config";
+import * as Effect from "effect/Effect";
+import * as Redacted from "effect/Redacted";
 
 const prefix = process.argv[2];
 if (!prefix) throw new Error("usage: bun upload.ts <prefix>");
 
-const env = (name: string) => {
-  const value = process.env[name];
-  if (!value) throw new Error(`${name} is not set`);
-  return value;
-};
-const accountId = env("CLOUDFLARE_ACCOUNT_ID");
-const token = env("CLOUDFLARE_API_TOKEN");
-const bucket = env("DEMO_BUCKET");
+const { accountId, token, bucket } = Effect.runSync(
+  Config.all({
+    accountId: Config.String("CLOUDFLARE_ACCOUNT_ID"),
+    token: Config.Redacted("CLOUDFLARE_API_TOKEN"),
+    bucket: Config.String("DEMO_BUCKET"),
+  }),
+);
 
 const files = [
   { name: "demo.gif", type: "image/gif" },
@@ -24,13 +25,15 @@ const files = [
 ];
 
 for (const { name, type } of files) {
-  const file = Bun.file(path.join(import.meta.dir, "out", name));
   const response = await fetch(
     `https://api.cloudflare.com/client/v4/accounts/${accountId}/r2/buckets/${bucket}/objects/${prefix}/${name}`,
     {
       method: "PUT",
-      headers: { Authorization: `Bearer ${token}`, "Content-Type": type },
-      body: file,
+      headers: {
+        Authorization: `Bearer ${Redacted.value(token)}`,
+        "Content-Type": type,
+      },
+      body: Bun.file(path.join(import.meta.dir, "out", name)),
     },
   );
   if (!response.ok) {
@@ -38,5 +41,3 @@ for (const { name, type } of files) {
   }
   console.log(`uploaded ${prefix}/${name}`);
 }
-
-if (process.env.DEMO_BASE_URL) console.log(`${process.env.DEMO_BASE_URL}/${prefix}`);

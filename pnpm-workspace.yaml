@@ -2,12 +2,15 @@ packages:
   - packages/*
 
 # Mirrors ~/.bunfig.toml: only install versions published at least 3 days ago.
+# Alchemy is exempt so new betas can be adopted the day they ship.
 minimumReleaseAge: 4320
 minimumReleaseAgeExclude:
   - effect
+  - alchemy
+  - "@alchemy.run/*"
 
 catalog:
-  "@alchemy.run/frontend-frameworks": 2.0.0-beta.80
+  "@alchemy.run/frontend-frameworks": 2.0.0-beta.81
   "@effect/platform-browser": 4.0.0
   "@effect/platform-bun": 4.0.0
   "@effect/platform-node": 4.0.0
@@ -19,7 +22,7 @@ catalog:
   "@foldkit/vite-plugin": 0.26.0
   "@tailwindcss/vite": ^4.3.3
   "@types/node": ^25.9.9
-  alchemy: 2.0.0-beta.80
+  alchemy: 2.0.0-beta.81
   effect: 4.0.0
   foldkit: 0.165.0
   happy-dom: ^20.14.5
@@ -42,4 +45,4 @@ allowBuilds:
 overrides:
   hono: "catalog:"
 patchedDependencies:
-  alchemy@2.0.0-beta.80: patches/alchemy@2.0.0-beta.80.patch
+  alchemy@2.0.0-beta.81: patches/alchemy@2.0.0-beta.81.patch
