@@ -7,7 +7,9 @@ on:
     types: [opened, reopened, synchronize, closed]
 
 concurrency:
-  group: ci-${{ github.ref }}
+  # Grouped by PR number, not github.ref: a merged PR's `closed` run has
+  # github.ref = refs/heads/main and would otherwise cancel main's push run.
+  group: ci-${{ github.event.pull_request.number && format('pr-{0}', github.event.pull_request.number) || github.ref }}
   # A new push to a PR supersedes its in-progress run; main runs in order.
   cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
