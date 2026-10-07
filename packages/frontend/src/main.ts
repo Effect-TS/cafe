@@ -31,10 +31,10 @@ import {
   ChatEvent,
   ChatEventJson,
   ChatMessage,
-  eventsUrl,
 } from '@cafe/backend/api'
 
 const API_URL = import.meta.env.VITE_API_URL
+const apiUrls = HttpApiClient.urlBuilder(ChatApi, { baseUrl: API_URL })
 const CONNECTION_TIMEOUT_MS = 5000
 
 // MODEL
@@ -226,7 +226,11 @@ export const managedResources = ManagedResource.make<Model, Message>()(
         ),
       acquire: chatKey =>
         Effect.callback<WebSocket, Error>(resume => {
-          const ws = new WebSocket(eventsUrl(API_URL, chatKey))
+          const ws = new WebSocket(
+            String.replace(/^http/, 'ws')(
+              apiUrls.Chat.events({ params: { key: chatKey } }),
+            ),
+          )
 
           const handleOpen = () => {
             ws.removeEventListener('error', handleError)

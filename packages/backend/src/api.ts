@@ -5,6 +5,5 @@ import { ChatGroup } from "./chat.ts";
 
 export { ChatEvent, ChatEventJson } from "./chat-event.ts";
 export { ChatMessage } from "./chat-message.ts";
-export { eventsUrl } from "./events.ts";
 
 export class ChatApi extends HttpApi.make("ChatApi").add(ChatGroup) {}
