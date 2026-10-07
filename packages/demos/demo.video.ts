@@ -1,0 +1,257 @@
+import * as Config from "effect/Config";
+import * as Effect from "effect/Effect";
+import * as Option from "effect/Option";
+import { defineVideo } from "termcut";
+
+// Records the README demo: deploy with Alchemy, use the deployed app in a
+// browser, then the local loop (alchemy dev, pnpm test, ALCHEMY_DEV=1 pnpm test).
+//
+//   pnpm --filter @cafe/demos record
+//
+// Deploys the stage $DEMO_STAGE (default `demo`); record.ts runs `setup` and
+// `teardown` around the recording. Locally it uses the Alchemy profile
+// $ALCHEMY_PROFILE (default `testing`); in CI the CLOUDFLARE_* env vars.
+
+const config = Effect.runSync(
+  Config.all({
+    ci: Config.Boolean("CI").pipe(Config.withDefault(false)),
+    profile: Config.String("ALCHEMY_PROFILE").pipe(Config.withDefault("testing")),
+    stage: Config.String("DEMO_STAGE").pipe(Config.withDefault("demo")),
+    devStage: Config.option(Config.String("ALCHEMY_STAGE")),
+  }),
+);
+const profile = config.ci ? undefined : config.profile;
+const stage = config.stage;
+
+const destroyStage = async (stageToDestroy: string) => {
+  const proc = Bun.spawn(
+    [
+      "pnpm", "exec", "alchemy", "destroy", "--stage", stageToDestroy, "--yes", "--no-input",
+      ...(profile ? ["--profile", profile] : []),
+    ],
+    { cwd: `${import.meta.dir}/../..`, stdout: "inherit", stderr: "inherit" },
+  );
+  if ((await proc.exited) !== 0) {
+    throw new Error(`alchemy destroy --stage ${stageToDestroy} failed`);
+  }
+};
+
+/** Start from nothing deployed, so the recorded deploy creates the resources. */
+export const setup = () => destroyStage(stage);
+
+/** Remove the demo stage, and in CI the run's `alchemy dev` stage ($ALCHEMY_STAGE). */
+export const teardown = async () => {
+  await destroyStage(stage);
+  if (config.ci && Option.isSome(config.devStage)) {
+    await destroyStage(config.devStage.value);
+  }
+};
+
+export default defineVideo(
+  {
+    output: ["out/demo.mp4"],
+    // Terminal and browser side by side, half each. With no cols/rows, tcut
+    // sizes the terminal grid to fill its 960×1080 half.
+    width: 960,
+    height: 1080,
+    font: { size: 16 },
+    fps: 30,
+    maxPause: "1.5s",
+    windowBar: "colorful",
+    title: "cafe",
+    browser: { position: "right", width: 960, height: 1080 },
+    requires: ["pnpm"],
+    cache: false,
+  },
+  async (t) => {
+    await t.hide(async () => {
+      await t.run(
+        profile
+          ? `cd ../.. && export ALCHEMY_PROFILE=${profile} && clear`
+          : "cd ../.. && clear",
+      );
+    });
+
+    // 1. Deploy
+    await t.slide("Deploy to Cloudflare", {
+      eyebrow: "alchemy deploy",
+      subtitle: "One Worker for the Effect HttpApi + Durable Objects, one for the Foldkit site",
+      duration: "2.5s",
+    });
+    await t.timelapse(
+      async () => {
+        await t.run(`pnpm exec alchemy deploy --stage ${stage} --yes`, {
+          timeout: "5m",
+        });
+      },
+      { speed: 4 },
+    );
+    const url = siteUrl(t.scrollback());
+    const apiUrl = deployedApiUrl(t.scrollback());
+    // A new workers.dev URL takes a while to start serving; wait off-camera.
+    await t.hide(async () => {
+      await whenServing(url, 'id="root"');
+      await whenServing(`${apiUrl}/health`, "ok");
+    });
+
+    // 2. Use the deployed app
+    await t.slide("Chat with the deployed app", {
+      eyebrow: "Foldkit + WebSocket + Workers AI",
+      duration: "2s",
+    });
+    await openApp(t, url);
+    await useChat(t, "coffee", "Write a haiku about coffee.");
+
+    // 3. Local development
+    await t.slide("Develop locally", {
+      eyebrow: "alchemy dev",
+      subtitle: "Workers run in workerd, the site in Vite, against real cloud resources",
+      duration: "2.5s",
+    });
+    await t.clear();
+    await t.type("pnpm dev");
+    await t.enter();
+    await t.wait(/Done:/, { scope: "scrollback", timeout: "3m" });
+    const devUrl = localUrl(t.scrollback());
+    await openApp(t, devUrl);
+    await useChat(t, "local", "Say hello from localhost in one sentence.");
+    await t.ctrl("c");
+    await t.wait(undefined, { timeout: "60s" });
+
+    // The deployed chat keeps its history: rejoin it while the tests run.
+    await openApp(t, url);
+    await fill(t, "#chat-key", "coffee");
+    await submit(t);
+
+    // 4. Tests against the cloud, then locally
+    await t.slide("Test against the cloud", {
+      eyebrow: "pnpm test",
+      subtitle: "Test.make deploys a test stage, runs the suite, and destroys it",
+      duration: "2.5s",
+    });
+    await t.clear();
+    await t.timelapse(
+      async () => {
+        await t.run("pnpm test", { timeout: "10m" });
+      },
+      { speed: 4 },
+    );
+    await t.expect(/Tests\s+\d+ passed/, { scope: "scrollback" });
+
+    await t.slide("Test locally", {
+      eyebrow: "ALCHEMY_DEV=1 pnpm test",
+      subtitle: "The same suites against workerd",
+      duration: "2.5s",
+    });
+    await t.clear();
+    await t.timelapse(
+      async () => {
+        await t.run("ALCHEMY_DEV=1 pnpm test", { timeout: "10m" });
+      },
+      { speed: 4 },
+    );
+    await t.expect(/Tests\s+\d+ passed/, { scope: "scrollback" });
+    await t.sleep("3s");
+  },
+);
+
+type Video = Parameters<Parameters<typeof defineVideo>[1]>[0];
+
+/** Joins a chat in the browser pane, sends a prompt, and waits for the reply. */
+const useChat = async (t: Video, chatKey: string, prompt: string) => {
+  await t.browser.waitFor(/Join chat/);
+  await fill(t, "#chat-key", chatKey);
+  await submit(t);
+  // Connected once the prompt input renders ("Joining #key…" shows before).
+  await waitUntil(t, `document.querySelector("#prompt") !== null`, "the chat to connect");
+  await t.sleep("500ms");
+  await fill(t, "#prompt", prompt);
+  await submit(t);
+  await waitUntil(
+    t,
+    `document.querySelector('li[data-role="assistant"]') !== null &&
+     document.querySelector('li[data-role="assistant"] [aria-busy="true"]') === null`,
+    "the assistant reply",
+  );
+  await t.sleep("2s");
+};
+
+/** Clicks the form's submit button once Foldkit has re-rendered it enabled. */
+const submit = async (t: Video) => {
+  await waitUntil(
+    t,
+    `(() => { const b = document.querySelector("button[type=submit]");
+      return b !== null && !b.disabled && !b.hasAttribute("data-disabled"); })()`,
+    "an enabled submit button",
+  );
+  await t.browser.click("button[type=submit]");
+};
+
+/** Types into a Foldkit input: set the value, then fire the `input` event it listens to. */
+const fill = async (t: Video, selector: string, value: string) => {
+  await waitUntil(t, `document.querySelector(${JSON.stringify(selector)}) !== null`, selector);
+  await t.browser.evaluate(`(() => {
+    const input = document.querySelector(${JSON.stringify(selector)});
+    input.value = ${JSON.stringify(value)};
+    input.dispatchEvent(new Event("input", { bubbles: true }));
+  })()`);
+};
+
+const waitUntil = async (t: Video, condition: string, what: string) => {
+  for (let attempt = 0; attempt < 240; attempt++) {
+    if ((await t.browser.evaluate(condition)) === true) return;
+    await t.sleep("250ms");
+  }
+  throw new Error(`timed out waiting for ${what}`);
+};
+
+/**
+ * Resolves once `url` has served a body containing `expected` five times in a
+ * row. A new workers.dev URL can answer with Cloudflare's "There is nothing
+ * here yet" placeholder, so the status code alone is not enough.
+ */
+const whenServing = async (url: string, expected: string) => {
+  let streak = 0;
+  for (let attempt = 0; attempt < 180 && streak < 5; attempt++) {
+    const served = await fetch(url).then(
+      async (r) => r.ok && (await r.text()).includes(expected),
+      () => false,
+    );
+    streak = served ? streak + 1 : 0;
+    await Bun.sleep(1000);
+  }
+  if (streak < 5) throw new Error(`${url} is not serving ${expected}`);
+};
+
+/** Opens the app in the browser pane, reloading until it has rendered. */
+const openApp = async (t: Video, url: string) => {
+  await t.browser.goto(url);
+  for (let attempt = 1; ; attempt++) {
+    try {
+      await t.browser.waitFor(/Join chat|Leave/, { timeout: "10s" });
+      return;
+    } catch (error) {
+      if (attempt >= 6) throw error;
+      await t.browser.reload();
+    }
+  }
+};
+
+const deployedApiUrl = (output: string) => {
+  const match = output.match(/apiUrl: '(https:\/\/[^']+)'/);
+  if (!match?.[1]) throw new Error("deploy output has no api url");
+  return match[1];
+};
+
+const siteUrl = (output: string) => {
+  const match = output.match(/url: '(https:\/\/[^']+)'/);
+  if (!match?.[1]) throw new Error("deploy output has no site url");
+  return match[1];
+};
+
+const localUrl = (output: string) => {
+  const matches = [...output.matchAll(/url: '(http:\/\/localhost:\d+)'/g)];
+  const last = matches.at(-1)?.[1];
+  if (!last) throw new Error("alchemy dev output has no local site url");
+  return last;
+};

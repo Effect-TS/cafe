@@ -5,6 +5,7 @@ import * as Alchemy from "alchemy";
 import * as Cloudflare from "alchemy/Cloudflare";
 import * as Test from "alchemy/Test/Vitest";
 import * as Array from "effect/Array";
+import * as Config from "effect/Config";
 import * as Effect from "effect/Effect";
 import * as Queue from "effect/Queue";
 import * as Schedule from "effect/Schedule";
@@ -56,9 +57,12 @@ const stack = beforeAll(
   }),
 );
 
-afterAll.skipIf(!!process.env.NO_DESTROY || !!process.env.ALCHEMY_DEV)(
-  destroy(Stack),
-);
+const flag = (name: string) =>
+  Effect.runSync(Config.Boolean(name).pipe(Config.withDefault(false)));
+
+// NOTE: in dev mode (ALCHEMY_DEV=1) `destroy` hangs past the hook timeout, and
+// there is nothing deployed to tear down, so only destroy live deployments.
+afterAll.skipIf(flag("NO_DESTROY") || flag("ALCHEMY_DEV"))(destroy(Stack));
 
 const uniqueKey = (prefix: string) => `${prefix}-${crypto.randomUUID()}`;
 

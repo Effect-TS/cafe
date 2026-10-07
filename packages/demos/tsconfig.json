@@ -1,0 +1,14 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    "types": ["bun"],
+    "outDir": ".tsc",
+    "rootDir": ".",
+    // termcut publishes TypeScript source (no declarations), so its
+    // implementation is type-checked here too: its renderer needs DOM types and
+    // it does not satisfy exactOptionalPropertyTypes. See also assets.d.ts.
+    "lib": ["ES2022", "DOM"],
+    "exactOptionalPropertyTypes": false
+  },
+  "include": ["*.ts"]
+}

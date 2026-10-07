@@ -165,8 +165,8 @@ settings:
 catalogs:
   default:
     '@alchemy.run/frontend-frameworks':
-      specifier: 2.0.0-beta.80
-      version: 2.0.0-beta.80
+      specifier: 2.0.0-beta.81
+      version: 2.0.0-beta.81
     '@effect/platform-browser':
       specifier: 4.0.0
       version: 4.0.0
@@ -197,12 +197,15 @@ catalogs:
     '@tailwindcss/vite':
       specifier: ^4.3.3
       version: 4.3.3
+    '@types/bun':
+      specifier: 1.4.2
+      version: 1.4.2
     '@types/node':
       specifier: ^25.9.9
       version: 25.9.9
     alchemy:
-      specifier: 2.0.0-beta.80
-      version: 2.0.0-beta.80
+      specifier: 2.0.0-beta.81
+      version: 2.0.0-beta.81
     effect:
       specifier: 4.0.0
       version: 4.0.0
@@ -224,6 +227,9 @@ catalogs:
     tailwindcss:
       specifier: ^4.3.3
       version: 4.3.3
+    termcut:
+      specifier: 1.4.4
+      version: 1.4.4
     typescript:
       specifier: ^7.0.2
       version: 7.0.2
@@ -238,7 +244,7 @@ overrides:
   hono: ^4.13.12
 
 patchedDependencies:
-  alchemy@2.0.0-beta.80: 217c9a7c1d009979039ffa3d35f7bd2b00072e72605078b5b09c01392f097ced
+  alchemy@2.0.0-beta.81: c1c44f14fd53000b0b2e56284648ebb0c0e1e89e168f1cee7cc797a977a4acb5
 
 importers:
 
@@ -246,7 +252,7 @@ importers:
     dependencies:
       '@alchemy.run/frontend-frameworks':
         specifier: 'catalog:'
-        version: 2.0.0-beta.80(@effect/platform-bun@4.0.0(effect@4.0.0))(@effect/platform-node@4.0.0(effect@4.0.0)(redis@6.3.0))(@types/node@25.9.9)(effect@4.0.0)(hono@4.13.12)(typescript@7.0.2)(vite@8.3.2(@types/node@25.9.9)(esbuild@0.28.2)(jiti@2.7.0)(yaml@2.9.1))
+        version: 2.0.0-beta.81(@effect/platform-bun@4.0.0(effect@4.0.0))(@effect/platform-node@4.0.0(effect@4.0.0)(redis@6.3.0))(@types/node@25.9.9)(effect@4.0.0)(hono@4.13.12)(typescript@7.0.2)(vite@8.3.2(@types/node@25.9.9)(esbuild@0.28.2)(jiti@2.7.0)(yaml@2.9.1))
       '@cafe/api':
         specifier: workspace:*
         version: link:packages/api
@@ -264,7 +270,7 @@ importers:
         version: 4.0.0(effect@4.0.0)(redis@6.3.0)
       alchemy:
         specifier: 'catalog:'
-        version: 2.0.0-beta.80(patch_hash=217c9a7c1d009979039ffa3d35f7bd2b00072e72605078b5b09c01392f097ced)(@alchemy.run/frontend-frameworks@2.0.0-beta.80(@effect/platform-bun@4.0.0(effect@4.0.0))(@effect/platform-node@4.0.0(effect@4.0.0)(redis@6.3.0))(@types/node@25.9.9)(effect@4.0.0)(hono@4.13.12)(typescript@7.0.2)(vite@8.3.2(@types/node@25.9.9)(esbuild@0.28.2)(jiti@2.7.0)(yaml@2.9.1)))(@effect/platform-bun@4.0.0(effect@4.0.0))(@effect/platform-node@4.0.0(effect@4.0.0)(redis@6.3.0))(@effect/vitest@4.0.0(effect@4.0.0)(vitest@5.0.3(@types/node@25.9.9)(happy-dom@20.14.5)(vite@8.3.2(@types/node@25.9.9)(esbuild@0.28.2)(jiti@2.7.0)(yaml@2.9.1))))(@types/node@25.9.9)(effect@4.0.0)(hono@4.13.12)(typescript@7.0.2)(vite@8.3.2(@types/node@25.9.9)(esbuild@0.28.2)(jiti@2.7.0)(yaml@2.9.1))(ws@8.22.0)
+        version: 2.0.0-beta.81(patch_hash=c1c44f14fd53000b0b2e56284648ebb0c0e1e89e168f1cee7cc797a977a4acb5)(@alchemy.run/frontend-frameworks@2.0.0-beta.81(@effect/platform-bun@4.0.0(effect@4.0.0))(@effect/platform-node@4.0.0(effect@4.0.0)(redis@6.3.0))(@types/node@25.9.9)(effect@4.0.0)(hono@4.13.12)(typescript@7.0.2)(vite@8.3.2(@types/node@25.9.9)(esbuild@0.28.2)(jiti@2.7.0)(yaml@2.9.1)))(@effect/platform-bun@4.0.0(effect@4.0.0))(@effect/platform-node@4.0.0(effect@4.0.0)(redis@6.3.0))(@effect/vitest@4.0.0(effect@4.0.0)(vitest@5.0.3(@types/node@25.9.9)(happy-dom@20.14.5)(vite@8.3.2(@types/node@25.9.9)(esbuild@0.28.2)(jiti@2.7.0)(yaml@2.9.1))))(@types/node@25.9.9)(effect@4.0.0)(hono@4.13.12)(typescript@7.0.2)(vite@8.3.2(@types/node@25.9.9)(esbuild@0.28.2)(jiti@2.7.0)(yaml@2.9.1))(ws@8.22.0)
       effect:
         specifier: 'catalog:'
         version: 4.0.0
@@ -302,7 +308,7 @@ importers:
         version: 4.0.0(effect@4.0.0)(redis@6.3.0)
       alchemy:
         specifier: 'catalog:'
-        version: 2.0.0-beta.80(patch_hash=217c9a7c1d009979039ffa3d35f7bd2b00072e72605078b5b09c01392f097ced)(@alchemy.run/frontend-frameworks@2.0.0-beta.80(@effect/platform-bun@4.0.0(effect@4.0.0))(@effect/platform-node@4.0.0(effect@4.0.0)(redis@6.3.0))(@types/node@25.9.9)(effect@4.0.0)(hono@4.13.12)(typescript@7.0.2)(vite@8.3.2(@types/node@25.9.9)(esbuild@0.28.2)(jiti@2.7.0)(yaml@2.9.1)))(@effect/platform-bun@4.0.0(effect@4.0.0))(@effect/platform-node@4.0.0(effect@4.0.0)(redis@6.3.0))(@effect/vitest@4.0.0(effect@4.0.0)(vitest@5.0.3(@types/node@25.9.9)(happy-dom@20.14.5)(vite@8.3.2(@types/node@25.9.9)(esbuild@0.28.2)(jiti@2.7.0)(yaml@2.9.1))))(@types/node@25.9.9)(effect@4.0.0)(hono@4.13.12)(typescript@7.0.2)(vite@8.3.2(@types/node@25.9.9)(esbuild@0.28.2)(jiti@2.7.0)(yaml@2.9.1))(ws@8.22.0)
+        version: 2.0.0-beta.81(patch_hash=c1c44f14fd53000b0b2e56284648ebb0c0e1e89e168f1cee7cc797a977a4acb5)(@alchemy.run/frontend-frameworks@2.0.0-beta.81(@effect/platform-bun@4.0.0(effect@4.0.0))(@effect/platform-node@4.0.0(effect@4.0.0)(redis@6.3.0))(@types/node@25.9.9)(effect@4.0.0)(hono@4.13.12)(typescript@7.0.2)(vite@8.3.2(@types/node@25.9.9)(esbuild@0.28.2)(jiti@2.7.0)(yaml@2.9.1)))(@effect/platform-bun@4.0.0(effect@4.0.0))(@effect/platform-node@4.0.0(effect@4.0.0)(redis@6.3.0))(@effect/vitest@4.0.0(effect@4.0.0)(vitest@5.0.3(@types/node@25.9.9)(happy-dom@20.14.5)(vite@8.3.2(@types/node@25.9.9)(esbuild@0.28.2)(jiti@2.7.0)(yaml@2.9.1))))(@types/node@25.9.9)(effect@4.0.0)(hono@4.13.12)(typescript@7.0.2)(vite@8.3.2(@types/node@25.9.9)(esbuild@0.28.2)(jiti@2.7.0)(yaml@2.9.1))(ws@8.22.0)
       effect:
         specifier: 'catalog:'
         version: 4.0.0
@@ -316,6 +322,21 @@ importers:
       vitest:
         specifier: 'catalog:'
         version: 5.0.3(@types/node@25.9.9)(happy-dom@20.14.5)(vite@8.3.2(@types/node@25.9.9)(esbuild@0.28.2)(jiti@2.7.0)(yaml@2.9.1))
+
+  packages/demos:
+    devDependencies:
+      '@types/bun':
+        specifier: 'catalog:'
+        version: 1.4.2
+      effect:
+        specifier: 'catalog:'
+        version: 4.0.0
+      termcut:
+        specifier: 'catalog:'
+        version: 1.4.4(typescript@7.0.2)
+      typescript:
+        specifier: 'catalog:'
+        version: 7.0.2
 
   packages/frontend:
     dependencies:
@@ -337,7 +358,7 @@ importers:
     devDependencies:
       '@alchemy.run/frontend-frameworks':
         specifier: 'catalog:'
-        version: 2.0.0-beta.80(@effect/platform-bun@4.0.0(effect@4.0.0))(@effect/platform-node@4.0.0(effect@4.0.0)(redis@6.3.0))(@types/node@25.9.9)(effect@4.0.0)(hono@4.13.12)(typescript@7.0.2)(vite@8.3.2(@types/node@25.9.9)(esbuild@0.28.2)(jiti@2.7.0)(yaml@2.9.1))
+        version: 2.0.0-beta.81(@effect/platform-bun@4.0.0(effect@4.0.0))(@effect/platform-node@4.0.0(effect@4.0.0)(redis@6.3.0))(@types/node@25.9.9)(effect@4.0.0)(hono@4.13.12)(typescript@7.0.2)(vite@8.3.2(@types/node@25.9.9)(esbuild@0.28.2)(jiti@2.7.0)(yaml@2.9.1))
       '@cafe/backend':
         specifier: workspace:*
         version: link:../backend
@@ -370,7 +391,7 @@ importers:
         version: 25.9.9
       alchemy:
         specifier: 'catalog:'
-        version: 2.0.0-beta.80(patch_hash=217c9a7c1d009979039ffa3d35f7bd2b00072e72605078b5b09c01392f097ced)(@alchemy.run/frontend-frameworks@2.0.0-beta.80(@effect/platform-bun@4.0.0(effect@4.0.0))(@effect/platform-node@4.0.0(effect@4.0.0)(redis@6.3.0))(@types/node@25.9.9)(effect@4.0.0)(hono@4.13.12)(typescript@7.0.2)(vite@8.3.2(@types/node@25.9.9)(esbuild@0.28.2)(jiti@2.7.0)(yaml@2.9.1)))(@effect/platform-bun@4.0.0(effect@4.0.0))(@effect/platform-node@4.0.0(effect@4.0.0)(redis@6.3.0))(@effect/vitest@4.0.0(effect@4.0.0)(vitest@5.0.3(@types/node@25.9.9)(happy-dom@20.14.5)(vite@8.3.2(@types/node@25.9.9)(esbuild@0.28.2)(jiti@2.7.0)(yaml@2.9.1))))(@types/node@25.9.9)(effect@4.0.0)(hono@4.13.12)(typescript@7.0.2)(vite@8.3.2(@types/node@25.9.9)(esbuild@0.28.2)(jiti@2.7.0)(yaml@2.9.1))(ws@8.22.0)
+        version: 2.0.0-beta.81(patch_hash=c1c44f14fd53000b0b2e56284648ebb0c0e1e89e168f1cee7cc797a977a4acb5)(@alchemy.run/frontend-frameworks@2.0.0-beta.81(@effect/platform-bun@4.0.0(effect@4.0.0))(@effect/platform-node@4.0.0(effect@4.0.0)(redis@6.3.0))(@types/node@25.9.9)(effect@4.0.0)(hono@4.13.12)(typescript@7.0.2)(vite@8.3.2(@types/node@25.9.9)(esbuild@0.28.2)(jiti@2.7.0)(yaml@2.9.1)))(@effect/platform-bun@4.0.0(effect@4.0.0))(@effect/platform-node@4.0.0(effect@4.0.0)(redis@6.3.0))(@effect/vitest@4.0.0(effect@4.0.0)(vitest@5.0.3(@types/node@25.9.9)(happy-dom@20.14.5)(vite@8.3.2(@types/node@25.9.9)(esbuild@0.28.2)(jiti@2.7.0)(yaml@2.9.1))))(@types/node@25.9.9)(effect@4.0.0)(hono@4.13.12)(typescript@7.0.2)(vite@8.3.2(@types/node@25.9.9)(esbuild@0.28.2)(jiti@2.7.0)(yaml@2.9.1))(ws@8.22.0)
       happy-dom:
         specifier: 'catalog:'
         version: 20.14.5
@@ -398,8 +419,8 @@ importers:
 
 packages:
 
-  '@alchemy.run/cloudflare-runtime@2.0.0-beta.80':
-    resolution: {integrity: sha512-vrMDVAQ+LlzFGkgfIbi/65iwskdSxxWYhJX03sFL72mvkGxvb8RQSKrbxLGHhMz0QSZh796dOff1z9zOwxsIbA==}
+  '@alchemy.run/cloudflare-runtime@2.0.0-beta.81':
+    resolution: {integrity: sha512-gGmshJZSFbeyK94UMRgRcrE0prwJrp3H3kQ8aZmGOuWzwJMMxaoCuf4Nulf8nGsvHcjMEAfFi45AXRRQBgbgQQ==}
     peerDependencies:
       '@distilled.cloud/cloudflare': 1.0.0-rc.13
       '@effect/platform-bun': ^4.0.0
@@ -417,13 +438,13 @@ packages:
       vite:
         optional: true
 
-  '@alchemy.run/floci@2.0.0-beta.80':
-    resolution: {integrity: sha512-gtUXFitVY9pSQQYCDtSVyjfd5YOKY3Wleg3WCG5yWno7/l7xBo4kfOMbM63tzWnmka9LewVSITbMfwnC4D/73A==}
+  '@alchemy.run/floci@2.0.0-beta.81':
+    resolution: {integrity: sha512-0mYZqFrQLlRwDUsoJlI/ArnEaAaFid2ZPsJWvUyC5llAScWxlST7pdjQd1r/t1YIFFkhOV9JQO1wa7FI1nY6EQ==}
     peerDependencies:
       effect: ^4.0.0
 
-  '@alchemy.run/frontend-frameworks@2.0.0-beta.80':
-    resolution: {integrity: sha512-zi3+18wBj561A7bXqcSv7KqRSgu8Q4iHlQjUkBi0TO/I+CNSx9Sslgbb+7rwhjVysUOXRxLzOzqR7QOVP1yFlw==}
+  '@alchemy.run/frontend-frameworks@2.0.0-beta.81':
+    resolution: {integrity: sha512-cLmPkAvMs36cyz3WGEUNUYme6x5TED0isKWsbO6wjL3yjzUOJcmOpBH8YHUlgpKJqJObIo3jG29y7pzr3WnW3Q==}
     peerDependencies:
       '@effect/platform-bun': ^4.0.0
       '@effect/platform-node': ^4.0.0
@@ -433,7 +454,7 @@ packages:
       '@vitejs/plugin-react': ^6.0.2
       astro: ^7.0.0
       effect: ^4.0.0
-      hono: ^4.12.14
+      hono: ^4.13.12
       nuxt: '>=4.5.0'
       vite: ^7.0.0 || ^8.0.0
       vocs: 2.8.2
@@ -464,8 +485,8 @@ packages:
       waku:
         optional: true
 
-  '@alchemy.run/node-utils@2.0.0-beta.80':
-    resolution: {integrity: sha512-uOhVDQZTjwh1AU4mrk0wB5rQaziTwSrVMfqwFP8wALfU//nveu4goOWZimHtqytXiybENh+iEbALH25EFAkc7A==}
+  '@alchemy.run/node-utils@2.0.0-beta.81':
+    resolution: {integrity: sha512-AcxxGMFbbdiKww7OUbBd/fsSDyRJjoICAIqGwgkJxrIQkkaNt6+9SObrznmnOx70OonA2GH87RGnEaTtORHffw==}
 
   '@alchemy.run/sigil@0.1.0-alpha.1':
     resolution: {integrity: sha512-RtHELG2w+GluVewRsuKm66idtPzC+4STptMr/61X1Vy5uBkDzcCzjzV8G6jUa4iBv6Il0hHV7UL6wvv//9nD/Q==}
@@ -874,13 +895,13 @@ packages:
     resolution: {integrity: sha512-dSneS5qhiauZWGDCeK4o695Xd9nUNjviSZCMQrj10eetr8Uln1ucn6bbphOM6UynAMMtNIzZNSpL9vnASJwrPQ==}
     engines: {node: '>=18.14.1'}
     peerDependencies:
-      hono: ^4
+      hono: ^4.13.12
 
   '@hono/node-server@1.19.9':
     resolution: {integrity: sha512-vHL6w3ecZsky+8P5MD+eFfaGTyCeOHUIFYMGpQGbrBTSmNNoxv0if69rEZ5giu36weC5saFuznL411gRX7bJDw==}
     engines: {node: '>=18.14.1'}
     peerDependencies:
-      hono: ^4
+      hono: ^4.13.12
 
   '@img/colour@1.1.0':
     resolution: {integrity: sha512-Td76q7j57o/tLVdgS746cYARfSyxk8iEfRxewL9h4OMzYhbW4TAcppl0mT4eyqXddh6L/jwoM75mo7ixa/pCeQ==}
@@ -1138,7 +1159,7 @@ packages:
     resolution: {integrity: sha512-xyIEk9aULR2nBTzyTgxljkM8aS+Ppe9oVw/t5mdqYOlY/mLFppHSZHq8hiWVDWy6Ca8oLd3loTtfVz+cZQQjsA==}
     engines: {node: '>=20.19.0'}
     peerDependencies:
-      hono: ^4.7.8
+      hono: ^4.13.12
     peerDependenciesMeta:
       hono:
         optional: true
@@ -1823,6 +1844,9 @@ packages:
   '@types/aws-lambda@8.10.164':
     resolution: {integrity: sha512-XOnrazWcOd6yWPnR7DxqCBPPYciDjHq+NN8LPwwqBCJNXLyPJgKo47fZpJ113+oyAn9Zti0Cf6H4k6yPcE3WFg==}
 
+  '@types/bun@1.4.2':
+    resolution: {integrity: sha512-GimotNn7+ZV0uVArItBbriZsR1oNf0+WTzPkdcFrzShI7k2norL0uzEaJT8T33dWr7O/c9ZDuAFQrctKCi72oQ==}
+
   '@types/chai@5.2.3':
     resolution: {integrity: sha512-Mw558oeA9fFbv65/y4mHtXDs9bPnFMZAL/jxdPFUpOHHIXX91mcgEHbS5Lahr+pwZFR8A7GQleRWeI6cGFC2UA==}
 
@@ -1975,6 +1999,18 @@ packages:
   '@vitest/spy@5.0.3':
     resolution: {integrity: sha512-XhFysQTB8AZ+P4gMi+Lpo99vg2AZi0qKpaB9yXQl37+CaMEAPO3iH/wGVnSyL5MPERiLezpqTVtrR6UZH5GCXg==}
 
+  '@wterm/core@0.5.4':
+    resolution: {integrity: sha512-yIhbn27ELHDjEDtduDIycHWEEaobJGhqR+WqKgCoSPYReCIrR+skJS67PBk3Wp6+yLImfQ3Fv1CJ4hLXKLa7Fg==}
+
+  '@wterm/dom@0.5.4':
+    resolution: {integrity: sha512-9zxZq52BFpBtVEkBEbZF5a+9dX+eIADQdlTRq6YgGxHP/G/aDXyRja+tebQtAYqx9KY8qJVm20vNOhQxwBe/FQ==}
+
+  '@wterm/ghostty@0.5.4':
+    resolution: {integrity: sha512-W6wlGhHiGf/2tF/uZo8qHtaYqA3Ebf+6VhdPidiWuqEU37Kj+YSkuXCXP/qORSD0roec/5Z16qYRyF5HsC9XJg==}
+
+  '@wterm/markdown@0.5.4':
+    resolution: {integrity: sha512-1Pqp+qszWyMjLj98Mnf7yIJ0UucNUCD+ZC+iWN0sdikdcZ0oJj7VCzJxdb+ODBGB5ivNptKDkH4JMDBuAU3+ow==}
+
   accepts@2.0.0:
     resolution: {integrity: sha512-5cvg6CtKwfgdmVqY1WIiXKc3Q1bkRqGLi+2W/6ao+6Y7gu/RCwRuAhGEzh5B4KlszSuTLgZYuqFqo5bImjNKng==}
     engines: {node: '>= 0.6'}
@@ -1985,11 +2021,11 @@ packages:
   ajv@8.20.0:
     resolution: {integrity: sha512-Thbli+OlOj+iMPYFBVBfJ3OmCAnaSyNn4M1vz9T6Gka5Jt9ba/HIR56joy65tY6kx/FCF5VXNB819Y7/GUrBGA==}
 
-  alchemy@2.0.0-beta.80:
-    resolution: {integrity: sha512-2y7mswypPiApxuEdp8NGMfzCGB5+9W6OmQAuePyZ2xBkgoCpEqtKAnASuvKGUZPSYNESENbamXDuI5428ewu9w==}
+  alchemy@2.0.0-beta.81:
+    resolution: {integrity: sha512-AxEUQSYSln9NgZMuYnSz9Q7ERR8BrKrGpx9vOwJtWity7Ze8/7vI4k62u2EAoJRpBbaOTnI2Bp67Au1y9J7FTA==}
     hasBin: true
     peerDependencies:
-      '@alchemy.run/frontend-frameworks': 2.0.0-beta.80
+      '@alchemy.run/frontend-frameworks': 2.0.0-beta.81
       '@aws/durable-execution-sdk-js': ^2.1.0
       '@effect/platform-bun': ^4.0.0
       '@effect/platform-node': ^4.0.0
@@ -2065,6 +2101,9 @@ packages:
   buffer-image-size@0.6.4:
     resolution: {integrity: sha512-nEh+kZOPY1w+gcCMobZ6ETUp9WfibndnosbpwB1iJk/8Gt5ZF2bhS6+B6bPYz424KtwsR6Rflc3tCz1/ghX2dQ==}
     engines: {node: '>=4.0'}
+
+  bun-types@1.4.2:
+    resolution: {integrity: sha512-bxV1FgK7yBIzjRe5zBozIM4Bem11ZJcCXSrjWRG3YWLt8yFDePu4cLjpebO8OvPeIE9trbyPF4fuj3Cia4Fj3w==}
 
   bytes@3.1.2:
     resolution: {integrity: sha512-/Nf7TyzTx6S3yRJObOAV7956r8cr2+Oj8AC5dt8wSP3BQAoeX58NoHyCU8P8zGkNXStjTSi6fzO6F0pBdcYbEg==}
@@ -2858,6 +2897,13 @@ packages:
     resolution: {integrity: sha512-uxc/zpqFg6x7C8vOE7lh6Lbda8eEL9zmVm/PLeTPBRhh1xCgdWaQ+J1CUieGpIfm2HdtsUpRv+HshiasBMcc6A==}
     engines: {node: '>=6'}
 
+  termcut@1.4.4:
+    resolution: {integrity: sha512-Wkj7x+NflcwA9y4lXOuFLCnxFb8VGo1H3+IWk8+w7LjXcCoUkVUXR+fhfMDiALx6cfk6ZgteA3+evC0Z8Gd3hw==}
+    engines: {bun: '>=1.4.1'}
+    hasBin: true
+    peerDependencies:
+      typescript: ^5 || ^6 || ^7
+
   tinybench@6.2.0:
     resolution: {integrity: sha512-78U2TlB2CnVenajOFzf3BKSm0J6oz5L0NV7g32LCPccvYc0lbWvys4d3uUUCS2B1N8PAf2+aekR8i1KbC3HO7Q==}
     engines: {node: '>=20.0.0'}
@@ -3075,9 +3121,9 @@ packages:
 
 snapshots:
 
-  '@alchemy.run/cloudflare-runtime@2.0.0-beta.80(@distilled.cloud/cloudflare@1.0.0-rc.13(effect@4.0.0))(@effect/platform-bun@4.0.0(effect@4.0.0))(@effect/platform-node@4.0.0(effect@4.0.0)(redis@6.3.0))(@types/node@25.9.9)(effect@4.0.0)(rolldown@1.2.5)(typescript@7.0.2)(vite@8.3.2(@types/node@25.9.9)(esbuild@0.28.2)(jiti@2.7.0)(yaml@2.9.1))':
+  '@alchemy.run/cloudflare-runtime@2.0.0-beta.81(@distilled.cloud/cloudflare@1.0.0-rc.13(effect@4.0.0))(@effect/platform-bun@4.0.0(effect@4.0.0))(@effect/platform-node@4.0.0(effect@4.0.0)(redis@6.3.0))(@types/node@25.9.9)(effect@4.0.0)(rolldown@1.2.5)(typescript@7.0.2)(vite@8.3.2(@types/node@25.9.9)(esbuild@0.28.2)(jiti@2.7.0)(yaml@2.9.1))':
     dependencies:
-      '@alchemy.run/node-utils': 2.0.0-beta.80
+      '@alchemy.run/node-utils': 2.0.0-beta.81
       '@cloudflare/unenv-preset': 2.16.2(unenv@2.0.0-rc.24)(workerd@1.20260918.1)
       '@distilled.cloud/cloudflare': 1.0.0-rc.13(effect@4.0.0)
       '@puppeteer/browsers': 3.2.3(yauzl@3.4.0)
@@ -3099,13 +3145,13 @@ snapshots:
       - proxy-agent
       - typescript
 
-  '@alchemy.run/floci@2.0.0-beta.80(effect@4.0.0)':
+  '@alchemy.run/floci@2.0.0-beta.81(effect@4.0.0)':
     dependencies:
       effect: 4.0.0
 
-  '@alchemy.run/frontend-frameworks@2.0.0-beta.80(@effect/platform-bun@4.0.0(effect@4.0.0))(@effect/platform-node@4.0.0(effect@4.0.0)(redis@6.3.0))(@types/node@25.9.9)(effect@4.0.0)(hono@4.13.12)(typescript@7.0.2)(vite@8.3.2(@types/node@25.9.9)(esbuild@0.28.2)(jiti@2.7.0)(yaml@2.9.1))':
+  '@alchemy.run/frontend-frameworks@2.0.0-beta.81(@effect/platform-bun@4.0.0(effect@4.0.0))(@effect/platform-node@4.0.0(effect@4.0.0)(redis@6.3.0))(@types/node@25.9.9)(effect@4.0.0)(hono@4.13.12)(typescript@7.0.2)(vite@8.3.2(@types/node@25.9.9)(esbuild@0.28.2)(jiti@2.7.0)(yaml@2.9.1))':
     dependencies:
-      '@alchemy.run/cloudflare-runtime': 2.0.0-beta.80(@distilled.cloud/cloudflare@1.0.0-rc.13(effect@4.0.0))(@effect/platform-bun@4.0.0(effect@4.0.0))(@effect/platform-node@4.0.0(effect@4.0.0)(redis@6.3.0))(@types/node@25.9.9)(effect@4.0.0)(rolldown@1.2.5)(typescript@7.0.2)(vite@8.3.2(@types/node@25.9.9)(esbuild@0.28.2)(jiti@2.7.0)(yaml@2.9.1))
+      '@alchemy.run/cloudflare-runtime': 2.0.0-beta.81(@distilled.cloud/cloudflare@1.0.0-rc.13(effect@4.0.0))(@effect/platform-bun@4.0.0(effect@4.0.0))(@effect/platform-node@4.0.0(effect@4.0.0)(redis@6.3.0))(@types/node@25.9.9)(effect@4.0.0)(rolldown@1.2.5)(typescript@7.0.2)(vite@8.3.2(@types/node@25.9.9)(esbuild@0.28.2)(jiti@2.7.0)(yaml@2.9.1))
       '@distilled.cloud/aws': 1.0.0-rc.13(effect@4.0.0)
       '@distilled.cloud/cloudflare': 1.0.0-rc.13(effect@4.0.0)
       effect: 4.0.0
@@ -3123,7 +3169,7 @@ snapshots:
       - proxy-agent
       - typescript
 
-  '@alchemy.run/node-utils@2.0.0-beta.80':
+  '@alchemy.run/node-utils@2.0.0-beta.81':
     dependencies:
       chokidar: 5.0.0
       rolldown: 1.2.5
@@ -4089,6 +4135,10 @@ snapshots:
 
   '@types/aws-lambda@8.10.164': {}
 
+  '@types/bun@1.4.2':
+    dependencies:
+      bun-types: 1.4.2
+
   '@types/chai@5.2.3':
     dependencies:
       '@types/deep-eql': 4.0.2
@@ -4179,6 +4229,18 @@ snapshots:
 
   '@vitest/spy@5.0.3': {}
 
+  '@wterm/core@0.5.4': {}
+
+  '@wterm/dom@0.5.4':
+    dependencies:
+      '@wterm/core': 0.5.4
+
+  '@wterm/ghostty@0.5.4':
+    dependencies:
+      '@wterm/core': 0.5.4
+
+  '@wterm/markdown@0.5.4': {}
+
   accepts@2.0.0:
     dependencies:
       mime-types: 3.0.2
@@ -4195,11 +4257,11 @@ snapshots:
       json-schema-traverse: 1.0.0
       require-from-string: 2.0.2
 
-  alchemy@2.0.0-beta.80(patch_hash=217c9a7c1d009979039ffa3d35f7bd2b00072e72605078b5b09c01392f097ced)(@alchemy.run/frontend-frameworks@2.0.0-beta.80(@effect/platform-bun@4.0.0(effect@4.0.0))(@effect/platform-node@4.0.0(effect@4.0.0)(redis@6.3.0))(@types/node@25.9.9)(effect@4.0.0)(hono@4.13.12)(typescript@7.0.2)(vite@8.3.2(@types/node@25.9.9)(esbuild@0.28.2)(jiti@2.7.0)(yaml@2.9.1)))(@effect/platform-bun@4.0.0(effect@4.0.0))(@effect/platform-node@4.0.0(effect@4.0.0)(redis@6.3.0))(@effect/vitest@4.0.0(effect@4.0.0)(vitest@5.0.3(@types/node@25.9.9)(happy-dom@20.14.5)(vite@8.3.2(@types/node@25.9.9)(esbuild@0.28.2)(jiti@2.7.0)(yaml@2.9.1))))(@types/node@25.9.9)(effect@4.0.0)(hono@4.13.12)(typescript@7.0.2)(vite@8.3.2(@types/node@25.9.9)(esbuild@0.28.2)(jiti@2.7.0)(yaml@2.9.1))(ws@8.22.0):
+  alchemy@2.0.0-beta.81(patch_hash=c1c44f14fd53000b0b2e56284648ebb0c0e1e89e168f1cee7cc797a977a4acb5)(@alchemy.run/frontend-frameworks@2.0.0-beta.81(@effect/platform-bun@4.0.0(effect@4.0.0))(@effect/platform-node@4.0.0(effect@4.0.0)(redis@6.3.0))(@types/node@25.9.9)(effect@4.0.0)(hono@4.13.12)(typescript@7.0.2)(vite@8.3.2(@types/node@25.9.9)(esbuild@0.28.2)(jiti@2.7.0)(yaml@2.9.1)))(@effect/platform-bun@4.0.0(effect@4.0.0))(@effect/platform-node@4.0.0(effect@4.0.0)(redis@6.3.0))(@effect/vitest@4.0.0(effect@4.0.0)(vitest@5.0.3(@types/node@25.9.9)(happy-dom@20.14.5)(vite@8.3.2(@types/node@25.9.9)(esbuild@0.28.2)(jiti@2.7.0)(yaml@2.9.1))))(@types/node@25.9.9)(effect@4.0.0)(hono@4.13.12)(typescript@7.0.2)(vite@8.3.2(@types/node@25.9.9)(esbuild@0.28.2)(jiti@2.7.0)(yaml@2.9.1))(ws@8.22.0):
     dependencies:
-      '@alchemy.run/cloudflare-runtime': 2.0.0-beta.80(@distilled.cloud/cloudflare@1.0.0-rc.13(effect@4.0.0))(@effect/platform-bun@4.0.0(effect@4.0.0))(@effect/platform-node@4.0.0(effect@4.0.0)(redis@6.3.0))(@types/node@25.9.9)(effect@4.0.0)(rolldown@1.2.5)(typescript@7.0.2)(vite@8.3.2(@types/node@25.9.9)(esbuild@0.28.2)(jiti@2.7.0)(yaml@2.9.1))
-      '@alchemy.run/floci': 2.0.0-beta.80(effect@4.0.0)
-      '@alchemy.run/node-utils': 2.0.0-beta.80
+      '@alchemy.run/cloudflare-runtime': 2.0.0-beta.81(@distilled.cloud/cloudflare@1.0.0-rc.13(effect@4.0.0))(@effect/platform-bun@4.0.0(effect@4.0.0))(@effect/platform-node@4.0.0(effect@4.0.0)(redis@6.3.0))(@types/node@25.9.9)(effect@4.0.0)(rolldown@1.2.5)(typescript@7.0.2)(vite@8.3.2(@types/node@25.9.9)(esbuild@0.28.2)(jiti@2.7.0)(yaml@2.9.1))
+      '@alchemy.run/floci': 2.0.0-beta.81(effect@4.0.0)
+      '@alchemy.run/node-utils': 2.0.0-beta.81
       '@alchemy.run/sigil': 0.1.0-alpha.1
       '@distilled.cloud/acme': 1.0.0-rc.13(effect@4.0.0)
       '@distilled.cloud/aws': 1.0.0-rc.13(effect@4.0.0)
@@ -4235,7 +4297,7 @@ snapshots:
       tinyglobby: 0.2.17
       yaml: 2.9.1
     optionalDependencies:
-      '@alchemy.run/frontend-frameworks': 2.0.0-beta.80(@effect/platform-bun@4.0.0(effect@4.0.0))(@effect/platform-node@4.0.0(effect@4.0.0)(redis@6.3.0))(@types/node@25.9.9)(effect@4.0.0)(hono@4.13.12)(typescript@7.0.2)(vite@8.3.2(@types/node@25.9.9)(esbuild@0.28.2)(jiti@2.7.0)(yaml@2.9.1))
+      '@alchemy.run/frontend-frameworks': 2.0.0-beta.81(@effect/platform-bun@4.0.0(effect@4.0.0))(@effect/platform-node@4.0.0(effect@4.0.0)(redis@6.3.0))(@types/node@25.9.9)(effect@4.0.0)(hono@4.13.12)(typescript@7.0.2)(vite@8.3.2(@types/node@25.9.9)(esbuild@0.28.2)(jiti@2.7.0)(yaml@2.9.1))
       '@effect/platform-bun': 4.0.0(effect@4.0.0)
       '@effect/platform-node': 4.0.0(effect@4.0.0)(redis@6.3.0)
       '@effect/vitest': 4.0.0(effect@4.0.0)(vitest@5.0.3(@types/node@25.9.9)(happy-dom@20.14.5)(vite@8.3.2(@types/node@25.9.9)(esbuild@0.28.2)(jiti@2.7.0)(yaml@2.9.1)))
@@ -4274,6 +4336,10 @@ snapshots:
       - supports-color
 
   buffer-image-size@0.6.4:
+    dependencies:
+      '@types/node': 25.9.9
+
+  bun-types@1.4.2:
     dependencies:
       '@types/node': 25.9.9
 
@@ -5086,6 +5152,14 @@ snapshots:
   tailwindcss@4.3.3: {}
 
   tapable@2.3.3: {}
+
+  termcut@1.4.4(typescript@7.0.2):
+    dependencies:
+      '@wterm/core': 0.5.4
+      '@wterm/dom': 0.5.4
+      '@wterm/ghostty': 0.5.4
+      '@wterm/markdown': 0.5.4
+      typescript: 7.0.2
 
   tinybench@6.2.0: {}
 

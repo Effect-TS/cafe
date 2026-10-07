@@ -32,7 +32,6 @@ export default Alchemy.Stack(
           ## Preview deployed
 
           **App:** ${web.url}
-          **API:** ${api.url}
 
           Built from commit ${github.sha.slice(0, 7)}.
 
