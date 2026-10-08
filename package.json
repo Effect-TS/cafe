@@ -9,6 +9,8 @@
     "destroy": "alchemy destroy",
     "typecheck": "tsc --build",
     "test": "pnpm --recursive test",
+    "test:unit": "pnpm --filter @cafe/frontend test:unit",
+    "test:e2e": "pnpm --filter @cafe/frontend test:e2e",
     "lint": "pnpm --recursive lint",
     "demo": "pnpm --filter @cafe/demos record"
   },

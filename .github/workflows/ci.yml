@@ -36,7 +36,7 @@ jobs:
       - run: pnpm typecheck
       - run: pnpm lint
       - name: Unit tests (Story + Scene)
-        run: pnpm --filter @cafe/frontend test
+        run: pnpm --filter @cafe/frontend test:unit
 
   test:
     needs: check
@@ -124,6 +124,9 @@ jobs:
           bun-version: 1.4.2
       - run: brew install ffmpeg
       - run: pnpm install --frozen-lockfile
+      # The recorded `pnpm test` runs the Playwright e2e suite too.
+      - name: Install Playwright Chromium
+        run: pnpm --filter @cafe/frontend exec playwright install chromium
       - name: Check Cloudflare credentials
         run: pnpm exec alchemy provider check-env --provider Cloudflare
       # Stages for this PR's demo: the deploy it records, `alchemy dev`, and

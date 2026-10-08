@@ -35,10 +35,10 @@ packages/
 
 | Layer | File | What it covers | Command |
 | --- | --- | --- | --- |
-| Story | `packages/frontend/src/story.test.ts` | `update`: Message in, Model + Commands out (pure) | `pnpm --filter @cafe/frontend test` |
-| Scene | `packages/frontend/src/scene.test.ts` | user interactions through the rendered view (pure) | `pnpm --filter @cafe/frontend test` |
+| Story | `packages/frontend/src/story.test.ts` | `update`: Message in, Model + Commands out (pure) | `pnpm test:unit` |
+| Scene | `packages/frontend/src/scene.test.ts` | user interactions through the rendered view (pure) | `pnpm test:unit` |
 | API | `packages/backend/test/api.test.ts` | deploys the Worker with `Test.make`, drives HTTP + RPC | `pnpm --filter @cafe/backend test` |
-| e2e | `packages/frontend/test/chat.test.ts` | deploys Worker + site, drives Chromium with Playwright | `pnpm --filter @cafe/frontend test:e2e` |
+| e2e | `packages/frontend/test/chat.test.ts` | deploys Worker + site, drives Chromium with Playwright | `pnpm test:e2e` |
 
 Every behavior gets an e2e test: an API test for the backend, a Playwright test for the website. Story and Scene tests cover the frontend logic between those, and they run in milliseconds.
 
@@ -109,12 +109,11 @@ pnpm dev                           # alchemy dev: Worker in workerd + Vite, agai
 
 # red → green, locally
 ALCHEMY_DEV=1 pnpm --filter @cafe/backend test
-ALCHEMY_DEV=1 pnpm --filter @cafe/frontend test:e2e
-pnpm --filter @cafe/frontend test   # Story + Scene: run these constantly
+ALCHEMY_DEV=1 pnpm test:e2e
+pnpm test:unit                     # Story + Scene: run these constantly
 
 # then against real Cloudflare (deploys stage test_$USER, destroys it after)
-pnpm test
-pnpm --filter @cafe/frontend test:e2e
+pnpm test                          # everything: Story + Scene, API and Playwright e2e
 
 # before every push
 pnpm typecheck && pnpm lint
