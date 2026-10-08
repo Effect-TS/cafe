@@ -76,17 +76,17 @@ pnpm exec alchemy profile edit --add Cloudflare   # first time only
 pnpm dev        # alchemy dev: Worker in workerd + Vite dev server for the frontend
 pnpm run deploy # alchemy deploy (`pnpm deploy` is a built-in pnpm command)
 pnpm typecheck  # tsc --build across all packages
-pnpm test
+pnpm test       # everything: Story + Scene, API and Playwright e2e
 pnpm lint
 ```
 
 Backend tests and frontend e2e tests deploy to Cloudflare (stage `test_$USER`) and destroy what they deployed afterwards. Set `ALCHEMY_DEV=1` to run them against local workerd/Vite instead, and `ALCHEMY_PROFILE` to pick the Alchemy profile:
 
 ```sh
-pnpm --filter @cafe/frontend test                          # Story + Scene unit tests
+pnpm test:unit                                             # Story + Scene unit tests
 ALCHEMY_PROFILE=testing pnpm --filter @cafe/backend test   # API integration tests
-ALCHEMY_PROFILE=testing pnpm --filter @cafe/frontend test:e2e
-ALCHEMY_PROFILE=testing ALCHEMY_DEV=1 pnpm --filter @cafe/frontend test:e2e
+ALCHEMY_PROFILE=testing pnpm test:e2e                      # Playwright e2e
+ALCHEMY_PROFILE=testing ALCHEMY_DEV=1 pnpm test:e2e
 ```
 
 The e2e tests need Playwright's Chromium: `pnpm --filter @cafe/frontend exec playwright install chromium`.

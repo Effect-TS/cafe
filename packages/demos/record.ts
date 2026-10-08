@@ -55,6 +55,7 @@ async function encodeForWeb(mp4: string) {
     { width: 1024, fps: 8, colors: 96 },
     { width: 900, fps: 6, colors: 64 },
     { width: 800, fps: 5, colors: 48 },
+    { width: 720, fps: 4, colors: 32 },
   ];
   for (const { width, fps, colors } of attempts) {
     await ffmpeg([

@@ -7,7 +7,8 @@
     "build": "vite build",
     "preview": "vite preview",
     "format": "oxfmt",
-    "test": "vitest run --project unit",
+    "test": "vitest run",
+    "test:unit": "vitest run --project unit",
     "test:e2e": "vitest run --project e2e",
     "lint": "oxlint src test"
   },

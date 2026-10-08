@@ -134,7 +134,8 @@ export default defineVideo(
       async () => {
         await t.run("pnpm test", { timeout: "10m" });
       },
-      { speed: 4 },
+      // Unit, API and Playwright e2e suites: the longest stretch of the demo.
+      { speed: 8 },
     );
     await t.expect(/Tests\s+\d+ passed/, { scope: "scrollback" });
 
@@ -148,7 +149,7 @@ export default defineVideo(
       async () => {
         await t.run("ALCHEMY_DEV=1 pnpm test", { timeout: "10m" });
       },
-      { speed: 4 },
+      { speed: 8 },
     );
     await t.expect(/Tests\s+\d+ passed/, { scope: "scrollback" });
     await t.sleep("3s");
