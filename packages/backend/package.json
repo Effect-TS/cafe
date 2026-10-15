@@ -12,6 +12,7 @@
     "@cafe/api": "workspace:*",
     "@effect/platform-bun": "catalog:",
     "@effect/platform-node": "catalog:",
+    "@yielded/agent": "catalog:",
     "alchemy": "catalog:",
     "effect": "catalog:"
   },
