@@ -5,6 +5,7 @@ import * as Output from "alchemy/Output";
 import * as Effect from "effect/Effect";
 import * as Layer from "effect/Layer";
 import Api from "@cafe/backend";
+import KitchenLive from "@cafe/backend/kitchen/main";
 
 export default Alchemy.Stack(
   "Cafe",
@@ -45,5 +46,5 @@ export default Alchemy.Stack(
       apiUrl: api.url,
       url: web.url,
     };
-  }),
+  }).pipe(Effect.provide(KitchenLive)),
 );

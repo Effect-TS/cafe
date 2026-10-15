@@ -246,6 +246,9 @@ catalogs:
 overrides:
   hono: ^4.13.12
 
+patchedDependencies:
+  alchemy@2.0.0-beta.83: ad042efb9f1b0a8eb7b920d681ad3aa9bbddd4a902f27c2a8d4390ac3e0c34ea
+
 importers:
 
   .:
@@ -270,7 +273,7 @@ importers:
         version: 4.0.5(effect@4.0.5)(redis@6.3.0)
       alchemy:
         specifier: 'catalog:'
-        version: 2.0.0-beta.83(@alchemy.run/frontend-frameworks@2.0.0-beta.83(@effect/platform-bun@4.0.5(effect@4.0.5))(@effect/platform-node@4.0.5(effect@4.0.5)(redis@6.3.0))(@types/node@25.9.9)(effect@4.0.5)(hono@4.13.12)(typescript@7.0.2)(vite@8.3.2(@types/node@25.9.9)(esbuild@0.28.2)(jiti@2.7.0)(yaml@2.9.1)))(@effect/platform-bun@4.0.5(effect@4.0.5))(@effect/platform-node@4.0.5(effect@4.0.5)(redis@6.3.0))(@effect/vitest@4.0.5(effect@4.0.5)(vitest@5.0.3(@types/node@25.9.9)(happy-dom@20.14.5)(vite@8.3.2(@types/node@25.9.9)(esbuild@0.28.2)(jiti@2.7.0)(yaml@2.9.1))))(@types/node@25.9.9)(effect@4.0.5)(hono@4.13.12)(typescript@7.0.2)(vite@8.3.2(@types/node@25.9.9)(esbuild@0.28.2)(jiti@2.7.0)(yaml@2.9.1))(ws@8.22.0)
+        version: 2.0.0-beta.83(patch_hash=ad042efb9f1b0a8eb7b920d681ad3aa9bbddd4a902f27c2a8d4390ac3e0c34ea)(@alchemy.run/frontend-frameworks@2.0.0-beta.83(@effect/platform-bun@4.0.5(effect@4.0.5))(@effect/platform-node@4.0.5(effect@4.0.5)(redis@6.3.0))(@types/node@25.9.9)(effect@4.0.5)(hono@4.13.12)(typescript@7.0.2)(vite@8.3.2(@types/node@25.9.9)(esbuild@0.28.2)(jiti@2.7.0)(yaml@2.9.1)))(@effect/platform-bun@4.0.5(effect@4.0.5))(@effect/platform-node@4.0.5(effect@4.0.5)(redis@6.3.0))(@effect/vitest@4.0.5(effect@4.0.5)(vitest@5.0.3(@types/node@25.9.9)(happy-dom@20.14.5)(vite@8.3.2(@types/node@25.9.9)(esbuild@0.28.2)(jiti@2.7.0)(yaml@2.9.1))))(@types/node@25.9.9)(effect@4.0.5)(hono@4.13.12)(typescript@7.0.2)(vite@8.3.2(@types/node@25.9.9)(esbuild@0.28.2)(jiti@2.7.0)(yaml@2.9.1))(ws@8.22.0)
       effect:
         specifier: 'catalog:'
         version: 4.0.5
@@ -311,7 +314,7 @@ importers:
         version: 0.1.0-beta.183(effect@4.0.5)
       alchemy:
         specifier: 'catalog:'
-        version: 2.0.0-beta.83(@alchemy.run/frontend-frameworks@2.0.0-beta.83(@effect/platform-bun@4.0.5(effect@4.0.5))(@effect/platform-node@4.0.5(effect@4.0.5)(redis@6.3.0))(@types/node@25.9.9)(effect@4.0.5)(hono@4.13.12)(typescript@7.0.2)(vite@8.3.2(@types/node@25.9.9)(esbuild@0.28.2)(jiti@2.7.0)(yaml@2.9.1)))(@effect/platform-bun@4.0.5(effect@4.0.5))(@effect/platform-node@4.0.5(effect@4.0.5)(redis@6.3.0))(@effect/vitest@4.0.5(effect@4.0.5)(vitest@5.0.3(@types/node@25.9.9)(happy-dom@20.14.5)(vite@8.3.2(@types/node@25.9.9)(esbuild@0.28.2)(jiti@2.7.0)(yaml@2.9.1))))(@types/node@25.9.9)(effect@4.0.5)(hono@4.13.12)(typescript@7.0.2)(vite@8.3.2(@types/node@25.9.9)(esbuild@0.28.2)(jiti@2.7.0)(yaml@2.9.1))(ws@8.22.0)
+        version: 2.0.0-beta.83(patch_hash=ad042efb9f1b0a8eb7b920d681ad3aa9bbddd4a902f27c2a8d4390ac3e0c34ea)(@alchemy.run/frontend-frameworks@2.0.0-beta.83(@effect/platform-bun@4.0.5(effect@4.0.5))(@effect/platform-node@4.0.5(effect@4.0.5)(redis@6.3.0))(@types/node@25.9.9)(effect@4.0.5)(hono@4.13.12)(typescript@7.0.2)(vite@8.3.2(@types/node@25.9.9)(esbuild@0.28.2)(jiti@2.7.0)(yaml@2.9.1)))(@effect/platform-bun@4.0.5(effect@4.0.5))(@effect/platform-node@4.0.5(effect@4.0.5)(redis@6.3.0))(@effect/vitest@4.0.5(effect@4.0.5)(vitest@5.0.3(@types/node@25.9.9)(happy-dom@20.14.5)(vite@8.3.2(@types/node@25.9.9)(esbuild@0.28.2)(jiti@2.7.0)(yaml@2.9.1))))(@types/node@25.9.9)(effect@4.0.5)(hono@4.13.12)(typescript@7.0.2)(vite@8.3.2(@types/node@25.9.9)(esbuild@0.28.2)(jiti@2.7.0)(yaml@2.9.1))(ws@8.22.0)
       effect:
         specifier: 'catalog:'
         version: 4.0.5
@@ -394,7 +397,7 @@ importers:
         version: 25.9.9
       alchemy:
         specifier: 'catalog:'
-        version: 2.0.0-beta.83(@alchemy.run/frontend-frameworks@2.0.0-beta.83(@effect/platform-bun@4.0.5(effect@4.0.5))(@effect/platform-node@4.0.5(effect@4.0.5)(redis@6.3.0))(@types/node@25.9.9)(effect@4.0.5)(hono@4.13.12)(typescript@7.0.2)(vite@8.3.2(@types/node@25.9.9)(esbuild@0.28.2)(jiti@2.7.0)(yaml@2.9.1)))(@effect/platform-bun@4.0.5(effect@4.0.5))(@effect/platform-node@4.0.5(effect@4.0.5)(redis@6.3.0))(@effect/vitest@4.0.5(effect@4.0.5)(vitest@5.0.3(@types/node@25.9.9)(happy-dom@20.14.5)(vite@8.3.2(@types/node@25.9.9)(esbuild@0.28.2)(jiti@2.7.0)(yaml@2.9.1))))(@types/node@25.9.9)(effect@4.0.5)(hono@4.13.12)(typescript@7.0.2)(vite@8.3.2(@types/node@25.9.9)(esbuild@0.28.2)(jiti@2.7.0)(yaml@2.9.1))(ws@8.22.0)
+        version: 2.0.0-beta.83(patch_hash=ad042efb9f1b0a8eb7b920d681ad3aa9bbddd4a902f27c2a8d4390ac3e0c34ea)(@alchemy.run/frontend-frameworks@2.0.0-beta.83(@effect/platform-bun@4.0.5(effect@4.0.5))(@effect/platform-node@4.0.5(effect@4.0.5)(redis@6.3.0))(@types/node@25.9.9)(effect@4.0.5)(hono@4.13.12)(typescript@7.0.2)(vite@8.3.2(@types/node@25.9.9)(esbuild@0.28.2)(jiti@2.7.0)(yaml@2.9.1)))(@effect/platform-bun@4.0.5(effect@4.0.5))(@effect/platform-node@4.0.5(effect@4.0.5)(redis@6.3.0))(@effect/vitest@4.0.5(effect@4.0.5)(vitest@5.0.3(@types/node@25.9.9)(happy-dom@20.14.5)(vite@8.3.2(@types/node@25.9.9)(esbuild@0.28.2)(jiti@2.7.0)(yaml@2.9.1))))(@types/node@25.9.9)(effect@4.0.5)(hono@4.13.12)(typescript@7.0.2)(vite@8.3.2(@types/node@25.9.9)(esbuild@0.28.2)(jiti@2.7.0)(yaml@2.9.1))(ws@8.22.0)
       happy-dom:
         specifier: 'catalog:'
         version: 20.14.5
@@ -4313,7 +4316,7 @@ snapshots:
       json-schema-traverse: 1.0.0
       require-from-string: 2.0.2
 
-  alchemy@2.0.0-beta.83(@alchemy.run/frontend-frameworks@2.0.0-beta.83(@effect/platform-bun@4.0.5(effect@4.0.5))(@effect/platform-node@4.0.5(effect@4.0.5)(redis@6.3.0))(@types/node@25.9.9)(effect@4.0.5)(hono@4.13.12)(typescript@7.0.2)(vite@8.3.2(@types/node@25.9.9)(esbuild@0.28.2)(jiti@2.7.0)(yaml@2.9.1)))(@effect/platform-bun@4.0.5(effect@4.0.5))(@effect/platform-node@4.0.5(effect@4.0.5)(redis@6.3.0))(@effect/vitest@4.0.5(effect@4.0.5)(vitest@5.0.3(@types/node@25.9.9)(happy-dom@20.14.5)(vite@8.3.2(@types/node@25.9.9)(esbuild@0.28.2)(jiti@2.7.0)(yaml@2.9.1))))(@types/node@25.9.9)(effect@4.0.5)(hono@4.13.12)(typescript@7.0.2)(vite@8.3.2(@types/node@25.9.9)(esbuild@0.28.2)(jiti@2.7.0)(yaml@2.9.1))(ws@8.22.0):
+  alchemy@2.0.0-beta.83(patch_hash=ad042efb9f1b0a8eb7b920d681ad3aa9bbddd4a902f27c2a8d4390ac3e0c34ea)(@alchemy.run/frontend-frameworks@2.0.0-beta.83(@effect/platform-bun@4.0.5(effect@4.0.5))(@effect/platform-node@4.0.5(effect@4.0.5)(redis@6.3.0))(@types/node@25.9.9)(effect@4.0.5)(hono@4.13.12)(typescript@7.0.2)(vite@8.3.2(@types/node@25.9.9)(esbuild@0.28.2)(jiti@2.7.0)(yaml@2.9.1)))(@effect/platform-bun@4.0.5(effect@4.0.5))(@effect/platform-node@4.0.5(effect@4.0.5)(redis@6.3.0))(@effect/vitest@4.0.5(effect@4.0.5)(vitest@5.0.3(@types/node@25.9.9)(happy-dom@20.14.5)(vite@8.3.2(@types/node@25.9.9)(esbuild@0.28.2)(jiti@2.7.0)(yaml@2.9.1))))(@types/node@25.9.9)(effect@4.0.5)(hono@4.13.12)(typescript@7.0.2)(vite@8.3.2(@types/node@25.9.9)(esbuild@0.28.2)(jiti@2.7.0)(yaml@2.9.1))(ws@8.22.0):
     dependencies:
       '@alchemy.run/cloudflare-runtime': 2.0.0-beta.83(@distilled.cloud/cloudflare@1.0.0-rc.15(effect@4.0.5))(@effect/platform-bun@4.0.5(effect@4.0.5))(@effect/platform-node@4.0.5(effect@4.0.5)(redis@6.3.0))(@types/node@25.9.9)(effect@4.0.5)(rolldown@1.2.5)(typescript@7.0.2)(vite@8.3.2(@types/node@25.9.9)(esbuild@0.28.2)(jiti@2.7.0)(yaml@2.9.1))
       '@alchemy.run/floci': 2.0.0-beta.83(effect@4.0.5)

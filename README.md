@@ -55,7 +55,13 @@ packages/
         history.ts           History: the chat's messages in storage
         broadcast.ts         Broadcast: live events to every open stream
         post.ts              Post: append to History and broadcast
-        reply.ts             Reply: stream the Workers AI reply
+        reply.ts             Reply: stream the Barista's reply
+        barista.ts           Barista: a @yielded/agent agent on Workers AI, with the menu tool
+        menu.ts              the menu tool: calls the Kitchen over RPC
+      kitchen/
+        index.ts             Kitchen: a Container whose RPC methods back the barista's tools
+        main.ts              the Kitchen's process (bundled into its image; provided to the stacks)
+        menu.ts              today's menu
     test/
       api.test.ts          deploys the Worker with Test.make and drives the API (HTTP + RPC)
   demos/                   @cafe/demos: the README demo, recorded with tcut (terminal + browser pane)
@@ -73,7 +79,7 @@ packages/
 nix develop     # optional: Node, pnpm, cloudflared, Bun and ffmpeg from flake.nix
 pnpm install
 pnpm exec alchemy profile edit --add Cloudflare   # first time only
-pnpm dev        # alchemy dev: Worker in workerd + Vite dev server for the frontend
+pnpm dev        # alchemy dev: Worker in workerd + Vite dev server for the frontend (the Kitchen container needs Docker)
 pnpm run deploy # alchemy deploy (`pnpm deploy` is a built-in pnpm command)
 pnpm typecheck  # tsc --build across all packages
 pnpm test

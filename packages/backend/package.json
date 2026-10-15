@@ -3,7 +3,8 @@
   "private": true,
   "type": "module",
   "exports": {
-    ".": "./src/worker.ts"
+    ".": "./src/worker.ts",
+    "./kitchen/main": "./src/kitchen/main.ts"
   },
   "scripts": {
     "test": "vitest run"

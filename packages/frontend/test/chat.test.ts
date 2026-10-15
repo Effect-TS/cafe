@@ -2,6 +2,7 @@ import { fileURLToPath } from 'node:url'
 
 import { Api } from '@cafe/api'
 import ApiWorker from '@cafe/backend'
+import KitchenLive from '@cafe/backend/kitchen/main'
 import { expect } from '@effect/vitest'
 import * as Alchemy from 'alchemy'
 import * as Cloudflare from 'alchemy/Cloudflare'
@@ -30,7 +31,7 @@ const Stack = Alchemy.Stack(
       },
     })
     return { apiUrl: api.url.as<string>(), url: web.url.as<string>() }
-  }),
+  }).pipe(Effect.provide(KitchenLive)),
 )
 
 const { test, beforeAll, afterAll, deploy, destroy } = Test.make({
@@ -214,4 +215,19 @@ test(
     )
   }).pipe(Effect.scoped),
   { timeout: 60_000 },
+)
+
+test(
+  'the barista answers from the menu',
+  Effect.gen(function* () {
+    const page = yield* openSite
+
+    yield* joinChat(page, uniqueKey('menu'))
+    yield* sendPrompt(page, 'How much is a flat white?')
+    yield* waitForReply(page, 1)
+
+    const [reply] = yield* messageTexts(page, 'assistant')
+    expect(reply).toContain('4.50')
+  }).pipe(Effect.scoped),
+  { timeout: 120_000 },
 )

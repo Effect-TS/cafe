@@ -29,6 +29,8 @@ packages/
   demos/               @cafe/demos: the demo video, recorded with tcut
 ```
 
+The Room's replies come from the Barista (`room/barista.ts`), a [`@yielded/agent`](https://github.com/yielded-dev/agent) agent on Workers AI. Its tools call the Kitchen (`kitchen/`), a Container that serves them over Alchemy's RPC. To add a tool: a method on `Kitchen` plus its implementation in `kitchen/main.ts`, then an Effect AI `Tool` in `room/` whose handler calls it.
+
 `api` and `backend` mirror each other by domain. `packages/api/src/room/index.ts` exposes the `Room` RpcGroup with one file per RPC. `packages/backend/src/room/index.ts` is the Durable Object that implements it, with one handler file per RPC.
 
 ## Testing
@@ -105,7 +107,7 @@ pnpm --filter @cafe/frontend exec playwright install chromium   # once
 
 export ALCHEMY_PROFILE=testing     # your Alchemy profile (pnpm exec alchemy profile edit --add Cloudflare)
 
-pnpm dev                           # alchemy dev: Worker in workerd + Vite, against real cloud resources
+pnpm dev                           # alchemy dev: Worker in workerd + Vite, against real cloud resources; the Kitchen container runs in Docker
 
 # red → green, locally
 ALCHEMY_DEV=1 pnpm --filter @cafe/backend test
