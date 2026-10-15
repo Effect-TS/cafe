@@ -15,15 +15,16 @@ export const Menu = Tool.make("menu", {
 export const menu = (kitchen: Kitchen) =>
   Effect.gen(function* () {
     const runtime = yield* Effect.context<RuntimeContext>();
-    // A freshly deployed container can take a few seconds before it starts.
-    const start = kitchen
-      .start({ enableInternet: false })
-      .pipe(Effect.retry({ schedule: Schedule.exponential("500 millis"), times: 6 }));
+    const start = kitchen.start({ enableInternet: false });
     return Effect.fn("Kitchen.menu")(
       function* () {
         yield* start;
         return yield* kitchen.menu();
       },
+      // Right after a deploy, Cloudflare may have no container instance for
+      // the Room yet ("try again later"): the container exits before its port
+      // opens. Reading the menu is safe to repeat, so retry start + call.
+      Effect.retry({ schedule: Schedule.spaced("3 seconds"), times: 15 }),
       Effect.orDie,
       Effect.provideContext(runtime),
     );

@@ -20,7 +20,7 @@ const BaristaAgent = Agent.make("barista", {
   instructions:
     "You are a friendly barista in a group chat at a café. The input is the recent conversation; reply to its last message. For anything about drinks, food or prices, call the menu tool and answer from it. Reply concisely in plain text.",
   toolkit: BaristaTools,
-  policy: { maxTurns: 4, maxToolCalls: 2, maxDuration: "60 seconds" },
+  policy: { maxTurns: 4, maxToolCalls: 2, maxDuration: "90 seconds" },
 });
 
 export class BaristaError extends Data.TaggedError("BaristaError")<{
