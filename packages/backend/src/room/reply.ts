@@ -1,3 +1,4 @@
+import * as Cause from "effect/Cause";
 import * as Effect from "effect/Effect";
 import * as PubSub from "effect/PubSub";
 import * as Stream from "effect/Stream";
@@ -51,11 +52,12 @@ export const Reply = Effect.gen(function* () {
           }),
         ),
       ),
-      Effect.catch((error) =>
+      // Defects too: a reply that can't finish fails in the chat, not the request.
+      Effect.catchCause((cause) =>
         PubSub.publish(broadcast, {
           _tag: "ResponseFailed",
           responseId,
-          error: error.message,
+          error: Cause.pretty(cause),
         }),
       ),
     );

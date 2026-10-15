@@ -1,5 +1,6 @@
 import type { RuntimeContext } from "alchemy";
 import * as Effect from "effect/Effect";
+import * as Schedule from "effect/Schedule";
 import * as Schema from "effect/Schema";
 import * as Tool from "effect/ai/Tool";
 import type { Kitchen } from "../kitchen/index.ts";
@@ -14,7 +15,10 @@ export const Menu = Tool.make("menu", {
 export const menu = (kitchen: Kitchen) =>
   Effect.gen(function* () {
     const runtime = yield* Effect.context<RuntimeContext>();
-    const start = kitchen.start({ enableInternet: false });
+    // A freshly deployed container can take a few seconds before it starts.
+    const start = kitchen
+      .start({ enableInternet: false })
+      .pipe(Effect.retry({ schedule: Schedule.exponential("500 millis"), times: 6 }));
     return Effect.fn("Kitchen.menu")(
       function* () {
         yield* start;
