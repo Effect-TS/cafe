@@ -10,13 +10,15 @@ minimumReleaseAgeExclude:
   - alchemy
   - "@alchemy.run/*"
   - "@distilled.cloud/*"
+  - "@effect/*"
+  - "@yielded/*"
 
 catalog:
   "@alchemy.run/frontend-frameworks": 2.0.0-beta.83
-  "@effect/platform-browser": 4.0.0
-  "@effect/platform-bun": 4.0.0
-  "@effect/platform-node": 4.0.0
-  "@effect/vitest": 4.0.0
+  "@effect/platform-browser": 4.0.5
+  "@effect/platform-bun": 4.0.5
+  "@effect/platform-node": 4.0.5
+  "@effect/vitest": 4.0.5
   "@foldkit/devtools": 0.165.0
   "@foldkit/devtools-mcp": 0.24.0
   "@foldkit/oxlint-plugin": 0.15.1
@@ -25,8 +27,9 @@ catalog:
   "@tailwindcss/vite": ^4.3.3
   "@types/bun": 1.4.2
   "@types/node": ^25.9.9
+  "@yielded/agent": 0.1.0-beta.183
   alchemy: 2.0.0-beta.83
-  effect: 4.0.0
+  effect: 4.0.5
   foldkit: 0.165.0
   happy-dom: ^20.14.5
   hono: ^4.13.12
@@ -47,3 +50,10 @@ allowBuilds:
 # @alchemy.run/frontend-frameworks peer set and therefore the same alchemy.
 overrides:
   hono: "catalog:"
+# Foldkit pins effect 4.0.0 exactly; @yielded/agent needs ^4.0.3.
+peerDependencyRules:
+  allowedVersions:
+    effect: "4"
+    "@effect/platform-browser": "4"
+patchedDependencies:
+  alchemy@2.0.0-beta.83: patches/alchemy@2.0.0-beta.83.patch

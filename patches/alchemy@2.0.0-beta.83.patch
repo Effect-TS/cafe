@@ -1,0 +1,76 @@
+diff --git a/lib/Cloudflare/AI/LanguageModel.js b/lib/Cloudflare/AI/LanguageModel.js
+index 2c090d9e7f054dfe6c0661c32116026c695adb6a..59369274a58f54680b472542d9808be82d4aff2a 100644
+--- a/lib/Cloudflare/AI/LanguageModel.js
++++ b/lib/Cloudflare/AI/LanguageModel.js
+@@ -244,6 +244,8 @@ const mapUsage = (raw) => {
+     const completionTokens = usage.completion_tokens ?? 0;
+     const cached = usage.prompt_tokens_details
+         ?.cached_tokens;
++    const reasoningTokens = usage.completion_tokens_details
++        ?.reasoning_tokens ?? 0;
+     // Construct an actual `Response.Usage` instance — `Schema.Class<Usage>`
+     // encodes by going through the class constructor / `isInstance` check, so a
+     // plain struct that "matches" the encoded shape isn't enough.
+@@ -254,10 +256,12 @@ const mapUsage = (raw) => {
+             cacheRead: cached ?? 0,
+             cacheWrite: 0,
+         },
++        // The components must add up to the total (consumers such as
++        // @yielded/agent reject contradictory usage).
+         outputTokens: {
+             total: completionTokens,
+-            text: 0,
+-            reasoning: 0,
++            text: Math.max(0, completionTokens - reasoningTokens),
++            reasoning: reasoningTokens,
+         },
+     });
+ };
+@@ -384,6 +388,9 @@ const decodeToolCall = (tc) => {
+     return [];
+ };
+ const tryParseJsonArgs = (raw) => {
++    // Workers AI sends `""` as the arguments of a call to a parameterless tool.
++    if (raw === "" || raw == null)
++        return {};
+     if (typeof raw !== "string")
+         return raw;
+     try {
+diff --git a/src/Cloudflare/AI/LanguageModel.ts b/src/Cloudflare/AI/LanguageModel.ts
+index 6e515c599ca09ce4db39fe4c7df2697f13b44140..eaddf74a12ed274278c28a908e1cd60053871b46 100644
+--- a/src/Cloudflare/AI/LanguageModel.ts
++++ b/src/Cloudflare/AI/LanguageModel.ts
+@@ -410,6 +410,9 @@ const mapUsage = (raw: Record<string, unknown> | undefined): Response.Usage => {
+   const completionTokens = (usage.completion_tokens as number | undefined) ?? 0;
+   const cached = (usage.prompt_tokens_details as { cached_tokens?: number } | undefined)
+     ?.cached_tokens;
++  const reasoningTokens =
++    (usage.completion_tokens_details as { reasoning_tokens?: number } | undefined)
++      ?.reasoning_tokens ?? 0;
+   // Construct an actual `Response.Usage` instance — `Schema.Class<Usage>`
+   // encodes by going through the class constructor / `isInstance` check, so a
+   // plain struct that "matches" the encoded shape isn't enough.
+@@ -420,10 +423,12 @@ const mapUsage = (raw: Record<string, unknown> | undefined): Response.Usage => {
+       cacheRead: cached ?? 0,
+       cacheWrite: 0,
+     },
++    // The components must add up to the total (consumers such as
++    // @yielded/agent reject contradictory usage).
+     outputTokens: {
+       total: completionTokens,
+-      text: 0,
+-      reasoning: 0,
++      text: Math.max(0, completionTokens - reasoningTokens),
++      reasoning: reasoningTokens,
+     },
+   });
+ };
+@@ -612,6 +617,8 @@ const decodeToolCall = (tc: Record<string, unknown>): ReadonlyArray<DecodedToolC
+ };
+ 
+ const tryParseJsonArgs = (raw: unknown): unknown => {
++  // Workers AI sends `""` as the arguments of a call to a parameterless tool.
++  if (raw === "" || raw == null) return {};
+   if (typeof raw !== "string") return raw;
+   try {
+     return JSON.parse(raw);

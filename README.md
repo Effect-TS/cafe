@@ -55,7 +55,13 @@ packages/
         history.ts           History: the chat's messages in storage
         broadcast.ts         Broadcast: live events to every open stream
         post.ts              Post: append to History and broadcast
-        reply.ts             Reply: stream the Workers AI reply
+        reply.ts             Reply: stream the Barista's reply
+        barista.ts           Barista: a @yielded/agent agent on Workers AI, with the menu tool
+        menu.ts              the menu tool: calls the Kitchen over RPC
+      kitchen/
+        index.ts             Kitchen: a Container whose RPC methods back the barista's tools
+        main.ts              the Kitchen's process (bundled into its image; provided to the stacks)
+        menu.ts              today's menu
     test/
       api.test.ts          deploys the Worker with Test.make and drives the API (HTTP + RPC)
   demos/                   @cafe/demos: the README demo, recorded with tcut (terminal + browser pane)
@@ -73,7 +79,7 @@ packages/
 nix develop     # optional: Node, pnpm, cloudflared, Bun and ffmpeg from flake.nix
 pnpm install
 pnpm exec alchemy profile edit --add Cloudflare   # first time only
-pnpm dev        # alchemy dev: Worker in workerd + Vite dev server for the frontend
+pnpm dev        # alchemy dev: Worker in workerd + Vite dev server for the frontend (the Kitchen container needs Docker)
 pnpm run deploy # alchemy deploy (`pnpm deploy` is a built-in pnpm command)
 pnpm typecheck  # tsc --build across all packages
 pnpm test
@@ -98,7 +104,7 @@ The e2e tests need Playwright's Chromium: `pnpm --filter @cafe/frontend exec pla
 1. **check**: typecheck, lint, frontend unit tests.
 2. **test**: backend API tests and Playwright e2e tests against real Cloudflare, in stage `test-pr-<number>` (each suite destroys what it deployed).
 3. **deploy**: `alchemy deploy` to stage `pr-<number>` (or `prod` on `main`), with a PR comment linking the preview.
-4. **demo**: records the demo (macOS, tcut) in its own stages, alongside test and deploy, and uploads it to the demos bucket: `pr-<number>/<sha>/` goes into the PR's demo comment (**demo-comment**, once the preview is deployed too), `main/` is the README demo. PR demos expire after 30 days.
+4. **demo**: records the demo (Linux, tcut + Chrome, Docker for the Kitchen) in its own stages, alongside test and deploy, and uploads it to the demos bucket: `pr-<number>/<sha>/` goes into the PR's demo comment (**demo-comment**, once the preview is deployed too), `main/` is the README demo. PR demos expire after 30 days.
 5. **cleanup** (`cleanup.yml`): when a PR closes, waits for the PR's CI runs to finish, then `alchemy destroy`s its `pr-<number>` and demo stages. It is a separate workflow so no CI run can cancel it.
 
 CI authenticates with the `CLOUDFLARE_API_TOKEN` and `CLOUDFLARE_ACCOUNT_ID` repository secrets. `stacks/github.ts` writes them from the profile it is deployed with, which must use a Cloudflare API token (requires admin on the repository):

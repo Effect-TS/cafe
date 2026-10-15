@@ -1,5 +1,6 @@
 import * as Cloudflare from "alchemy/Cloudflare";
 import * as Http from "alchemy/Http";
+import * as Cause from "effect/Cause";
 import * as Effect from "effect/Effect";
 import * as Layer from "effect/Layer";
 import * as HttpRouter from "effect/http/HttpRouter";
@@ -41,8 +42,13 @@ export default Cloudflare.Worker(
             Effect.flatMap((room) => room.ping()),
             Effect.scoped,
             Effect.as(HttpServerResponse.text("ok")),
-            Effect.orElseSucceed(() =>
-              HttpServerResponse.text("unavailable", { status: 503 }),
+            // Defects too, with the cause: a crashed Room is unavailable, not a 500.
+            Effect.catchCause((cause) =>
+              Effect.succeed(
+                HttpServerResponse.text(`unavailable: ${Cause.pretty(cause)}`, {
+                  status: 503,
+                }),
+              ),
             ),
           );
         }

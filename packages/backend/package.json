@@ -3,7 +3,8 @@
   "private": true,
   "type": "module",
   "exports": {
-    ".": "./src/worker.ts"
+    ".": "./src/worker.ts",
+    "./kitchen/main": "./src/kitchen/main.ts"
   },
   "scripts": {
     "test": "vitest run"
@@ -12,6 +13,7 @@
     "@cafe/api": "workspace:*",
     "@effect/platform-bun": "catalog:",
     "@effect/platform-node": "catalog:",
+    "@yielded/agent": "catalog:",
     "alchemy": "catalog:",
     "effect": "catalog:"
   },

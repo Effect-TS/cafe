@@ -17,6 +17,7 @@ import * as HttpClientRequest from "effect/http/HttpClientRequest";
 import * as HttpClientResponse from "effect/http/HttpClientResponse";
 import * as HttpApiClient from "effect/http-api/HttpApiClient";
 import * as Socket from "effect/socket/Socket";
+import KitchenLive from "../src/kitchen/main.ts";
 import ApiWorker from "../src/worker.ts";
 
 const Stack = Alchemy.Stack(
@@ -28,7 +29,7 @@ const Stack = Alchemy.Stack(
   Effect.gen(function* () {
     const api = yield* ApiWorker;
     return { url: api.url.as<string>() };
-  }),
+  }).pipe(Effect.provide(KitchenLive)),
 );
 
 const { test, beforeAll, afterAll, deploy, destroy } = Test.make({
@@ -90,8 +91,7 @@ test(
 
     const response = yield* HttpClient.get(`${url}/health`);
 
-    expect(response.status).toBe(200);
-    expect(yield* response.text).toBe("ok");
+    expect(`${response.status} ${yield* response.text}`).toBe("200 ok");
   }),
 );
 
@@ -226,4 +226,32 @@ test(
     Effect.provide(Socket.layerWebSocketConstructorGlobal),
   ),
   { timeout: 60_000 },
+);
+
+test(
+  "the barista answers from the menu",
+  Effect.gen(function* () {
+    const { url } = yield* stack;
+    const client = yield* HttpApiClient.make(Api, { baseUrl: url });
+    const key = uniqueKey("menu");
+
+    const subscriber = yield* subscribe(url, key);
+    yield* client.Chat.sendPrompt({
+      params: { key },
+      payload: { text: "How much is a flat white?" },
+    });
+
+    let event = yield* subscriber.next;
+    while (event._tag !== "MessagePosted" || event.message.role !== "assistant") {
+      if (event._tag === "ResponseFailed") expect.fail(event.error);
+      event = yield* subscriber.next;
+    }
+
+    // Only the Kitchen's menu knows the price.
+    expect(event.message.text).toContain("4.50");
+  }).pipe(
+    Effect.scoped,
+    Effect.provide(Socket.layerWebSocketConstructorGlobal),
+  ),
+  { timeout: 120_000 },
 );
