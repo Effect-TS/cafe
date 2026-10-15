@@ -102,8 +102,10 @@ jobs:
     # preview, and main's is the one in the README. It deploys its own stages,
     # so it runs alongside test and deploy rather than after them.
     needs: check
-    # tcut's browser pane records through WebKit, which macOS has built in.
-    runs-on: macos-latest
+    # Linux, for Docker: the Kitchen container's image builds locally, and
+    # `alchemy dev` runs it. tcut renders through Chrome here (macOS runners
+    # have WebKit but can't run Docker).
+    runs-on: ubuntu-latest
     timeout-minutes: 30
     permissions:
       contents: read
@@ -112,6 +114,7 @@ jobs:
     env:
       CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
       CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+      BUN_CHROME_PATH: /usr/bin/google-chrome
     steps:
       - uses: actions/checkout@v4
       - uses: pnpm/action-setup@v4
@@ -122,7 +125,7 @@ jobs:
       - uses: oven-sh/setup-bun@v2
         with:
           bun-version: 1.4.2
-      - run: brew install ffmpeg
+      - run: sudo apt-get update && sudo apt-get install -y ffmpeg
       - run: pnpm install --frozen-lockfile
       - name: Check Cloudflare credentials
         run: pnpm exec alchemy provider check-env --provider Cloudflare
