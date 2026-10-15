@@ -2,15 +2,17 @@ packages:
   - packages/*
 
 # Mirrors ~/.bunfig.toml: only install versions published at least 3 days ago.
-# Alchemy is exempt so new betas can be adopted the day they ship.
+# Alchemy (and @distilled.cloud, its provider SDKs, released alongside it) is
+# exempt so new betas can be adopted the day they ship.
 minimumReleaseAge: 4320
 minimumReleaseAgeExclude:
   - effect
   - alchemy
   - "@alchemy.run/*"
+  - "@distilled.cloud/*"
 
 catalog:
-  "@alchemy.run/frontend-frameworks": 2.0.0-beta.81
+  "@alchemy.run/frontend-frameworks": 2.0.0-beta.83
   "@effect/platform-browser": 4.0.0
   "@effect/platform-bun": 4.0.0
   "@effect/platform-node": 4.0.0
@@ -23,7 +25,7 @@ catalog:
   "@tailwindcss/vite": ^4.3.3
   "@types/bun": 1.4.2
   "@types/node": ^25.9.9
-  alchemy: 2.0.0-beta.81
+  alchemy: 2.0.0-beta.83
   effect: 4.0.0
   foldkit: 0.165.0
   happy-dom: ^20.14.5
@@ -45,5 +47,3 @@ allowBuilds:
 # @alchemy.run/frontend-frameworks peer set and therefore the same alchemy.
 overrides:
   hono: "catalog:"
-patchedDependencies:
-  alchemy@2.0.0-beta.81: patches/alchemy@2.0.0-beta.81.patch

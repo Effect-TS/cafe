@@ -76,6 +76,10 @@ const subscribe = Effect.fn("subscribe")(function* (url: string, key: string) {
     Stream.runForEach((event) => Queue.offer(events, event)),
     Effect.forkScoped,
   );
+  // Live events aren't replayed, so make sure the Room has subscribed us
+  // before the test posts anything: it handles this socket's requests in
+  // order, and `events` subscribes before its first async step.
+  yield* client.ping();
   return { next: Queue.take(events) };
 });
 
