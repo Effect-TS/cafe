@@ -21,6 +21,8 @@ export default defineConfig({
           name: 'e2e',
           include: ['test/**/*.test.ts'],
           environment: 'node',
+          // beforeAll deploys the stack, which builds and pushes the Kitchen's image.
+          hookTimeout: 300_000,
         },
       },
     ],
