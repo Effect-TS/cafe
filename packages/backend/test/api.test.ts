@@ -91,8 +91,7 @@ test(
 
     const response = yield* HttpClient.get(`${url}/health`);
 
-    expect(response.status).toBe(200);
-    expect(yield* response.text).toBe("ok");
+    expect(`${response.status} ${yield* response.text}`).toBe("200 ok");
   }),
 );
 
